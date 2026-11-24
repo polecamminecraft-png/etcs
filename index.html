@@ -672,9 +672,11 @@ function render(){
   el.D.innerHTML=h;
 }
 ['#B','#B6','#B7'].forEach(id=>$(id).addEventListener('click',()=>{ if(S.mode!=='SR'||!S.cab||S.boot!==2)return; S.hookOn=!S.hookOn; click(); }));
-el.D.addEventListener('click',e=>{ if(e.target.dataset&&e.target.dataset.taf&&S.taf){ click(); S.taf=false; msg('Potwierdzono: tor przed pociągiem wolny'); after(2,()=>{ if((S.mode==='SR'||S.mode==='OS')&&S.level===2&&S.rbc==='on'){ enterFS(); } }); return; } const z=e.target.dataset&&e.target.dataset.pz; if(!z)return; const r=el.D.getBoundingClientRect(), up=(e.clientY-r.top)/r.height<.5; // ERA: górna połowa skali poszerza, dolna skraca
-  const L=[1000,2000,4000,8000,16000,32000]; let i=L.indexOf(S.pr||4000); if(i<0) i=2; i=Math.max(0,Math.min(L.length-1,i+(up?1:-1))); S.pr=L[i]; click(); });
-
+// dotyk liczony z pozycji (SVG jest przerysowywane co klatkę, więc "click" na elemencie często ginie)
+el.D.addEventListener('pointerdown',e=>{ const r=el.D.getBoundingClientRect(), x=(e.clientX-r.left)/r.width*246, y=(e.clientY-r.top)/r.height*300;
+  if(S.taf&&x>=70&&x<=192&&y>=108&&y<=185){ e.preventDefault(); click(); S.taf=false; msg('Potwierdzono: tor przed pociągiem wolny'); after(2,()=>{ if((S.mode==='SR'||S.mode==='OS')&&S.level===2&&S.rbc==='on'){ enterFS(); } }); return; }
+  if(x>100) return; e.preventDefault();
+  const L=[1000,2000,4000,8000,16000,32000]; let i=L.indexOf(S.pr||4000); if(i<0) i=2; i=Math.max(0,Math.min(L.length-1,i+(y<150?1:-1))); S.pr=L[i]; click(); });
 /* ---------- pulpit: pasek trasy ---------- */
 (function strip(){ const pc=x=>(x/TRACK.len*100)+'%'; let h='<div class="rail"></div>';
   STATIONS.forEach((st,i)=>{ h+=`<div class="mk" style="left:${pc(st.c)};top:${i%2?38:2}px">${st.n.replace('Gdańsk ','Gd. ').replace(' Główna','').replace(' Główny',' Gł.')}</div><div class="plat" style="left:${pc(st.plat[0])};width:${pc(260)};min-width:3px"></div>`; });
