@@ -3,7 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="coi-serviceworker.js"></script>
 <title>Symulator ETCS + radiotelefon pociągowy (150 MHz / GSM-R)</title>
 <style>
 :root{--bg:#14171c;--panel:#1e232b;--line:#343b47;--txt:#d9dee6;--mut:#8b95a5;--acc:#f2b233;--ok:#4cc38a;--bad:#e5484d;
@@ -25,6 +24,8 @@ main{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(360px,.85fr);gap
 section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;min-width:0}
 section h2{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--mut)}
 #pGuide{grid-column:1/-1}
+img.era{display:block;margin:auto;pointer-events:none;object-fit:contain;max-width:100%}#A4,#C8,#C9,#B7,#C7{display:flex;align-items:center;justify-content:center;overflow:hidden}#E1{overflow:hidden}#B3 img.era{max-height:28px}
+body{padding-bottom:48px}#simBar{position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--panel);border-top:2px solid var(--acc);box-shadow:0 -4px 16px #0008}#simTog{width:100%;background:none;border:0;color:inherit;font-weight:600;padding:11px;font-size:15px;cursor:pointer}#simGrid{display:none;max-height:48vh;overflow:auto;padding:4px 12px 12px;gap:10px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}#simBar.open #simGrid{display:grid}#simBar.open #simTog span{display:inline-block;transform:rotate(180deg)}.sg{display:flex;flex-direction:column;gap:5px}.sg h4{margin:4px 0 2px;font-size:13px;color:var(--acc)}.sg .btn{text-align:left}
 @media(max-width:980px){main{grid-template-columns:1fr;padding:8px}nav{display:flex}section{display:none}
 body[data-tab=dmi] #pDmi,body[data-tab=radio] #pRadio,body[data-tab=guide] #pGuide{display:block}}
 @keyframes bl{50%{opacity:.25}}
@@ -35,7 +36,7 @@ body[data-tab=dmi] #pDmi,body[data-tab=radio] #pRadio,body[data-tab=guide] #pGui
 #dmi>*{position:absolute}
 #dOff{inset:0;background:#000;z-index:9;display:flex;align-items:center;justify-content:center;color:#6c7480;font-size:16px}
 .cell{border:1px solid #000;border-right-color:#082d55;border-bottom-color:#082d55;display:flex;align-items:center;justify-content:center}
-#A1{left:0;top:15px;width:54px;height:54px}#A1 i{display:block;width:34px;height:34px}
+#A1{left:0;top:15px;width:54px;height:54px}#A1 i{display:block;width:34px;height:34px;transition:width .2s,height .2s}
 #A2{left:0;top:69px;width:54px;height:30px;font-size:14px;justify-content:flex-end;padding-right:5px}
 #A3{left:0;top:99px;width:54px;height:191px}
 #A4{left:0;top:290px;width:54px;height:25px}
@@ -43,12 +44,17 @@ body[data-tab=dmi] #pDmi,body[data-tab=radio] #pRadio,body[data-tab=guide] #pGui
 #B6{left:54px;top:271px;width:40px;height:40px;font-size:17px;color:var(--d-mg)}
 #B7{left:298px;top:275px;width:36px;height:36px}
 .ico{width:32px;height:32px;border:2px solid var(--d-grey);border-radius:3px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--d-grey)}
+.mi{display:flex;align-items:center;justify-content:center}.mi svg,.ack svg{display:block}
 .ico.y{border-color:var(--d-yel);color:var(--d-yel)}.ico.r{border-color:var(--d-red);color:#fff;background:var(--d-red)}
 #C8{left:0;top:315px;width:54px;height:50px}
-#C9{left:54px;top:315px;width:54px;height:50px}
+#C1,#C9,#bAck,#win button{touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.holding .ack,#bAck.holding,#win button.holding{background-image:linear-gradient(90deg,rgba(223,223,0,.45),rgba(223,223,0,.45));background-repeat:no-repeat;background-size:0 100%;animation:holdfill 1s linear forwards}
+@keyframes holdfill{to{background-size:100% 100%}}
+#C9{left:54px;top:315px;width:54px;height:50px;cursor:pointer}.ackb{border:3px solid var(--d-yel);padding:1px;animation:bl 1s infinite;display:flex}
+#B3{left:110px;top:278px;width:180px;height:30px;display:flex;gap:6px;align-items:center}
 #C7{left:108px;top:315px;width:57px;height:50px}
 #C1{left:165px;top:315px;width:115px;height:50px;cursor:pointer}
-#C1 .ack{width:105px;height:42px;border:3px solid var(--d-yel);color:var(--d-yel);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;line-height:1.15;text-align:center;animation:bl 1s infinite}
+#C1 .ack{gap:6px;width:105px;height:42px;border:3px solid var(--d-yel);color:var(--d-yel);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;line-height:1.15;text-align:center;animation:bl 1s infinite}
 #C2{left:280px;top:315px;width:54px;height:50px}
 #E1{left:0;top:365px;width:54px;height:100px;flex-direction:column;gap:4px;font-size:10px;text-align:center}
 #E5{left:54px;top:365px;width:280px;height:100px;border:1px solid #000;padding:3px 5px;overflow:hidden;font-size:11.5px;line-height:19px}
@@ -100,6 +106,7 @@ body[data-tab=dmi] #pDmi,body[data-tab=radio] #pRadio,body[data-tab=guide] #pGui
 #strip .plat{position:absolute;top:32px;height:6px;background:#7d8696}
 #strip .os{position:absolute;top:27px;height:5px;background:repeating-linear-gradient(90deg,var(--acc) 0 4px,transparent 4px 8px)}
 #strip #trn{position:absolute;top:23px;height:12px;background:var(--acc);border-radius:2px;min-width:6px}
+#sigp{display:grid;gap:3px;font-size:12.5px}.sph{color:var(--mut);font-size:12px}.spr{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.spn{flex:1 1 150px;display:flex;align-items:center;gap:6px}.spn i{width:10px;height:10px;border-radius:50%;display:inline-block}.spd{width:70px;color:var(--mut);text-align:right}.spb{background:#2a313c;border:1px solid var(--line);border-radius:5px;padding:3px 7px;font-size:12px}.spb.on{border-color:var(--acc);color:var(--acc)}
 #tele{font-size:13px;color:var(--mut);font-variant-numeric:tabular-nums}
 
 /* ---------- radio ---------- */
@@ -133,6 +140,10 @@ body[data-tab=dmi] #pDmi,body[data-tab=radio] #pRadio,body[data-tab=guide] #pGui
 #lcd .rows{position:absolute;left:1.4cqw;top:.8cqw;width:74%}#lcd .rows div{display:flex;justify-content:space-between;padding:0 .6cqw}
 #lcd .rt{position:absolute;right:2cqw;top:6cqw;text-align:center;font-size:5cqw}
 #lcd svg{width:7cqw;height:7cqw}
+#lcd .vgi{position:absolute;left:1.2cqw;bottom:1cqw;display:flex;flex-direction:column;align-items:flex-start;font-size:3cqw;line-height:1.05;gap:.2cqw}
+#lcd .vgi .rxtx{min-height:3cqw;font-size:3.2cqw}#lcd .vgi.blink .inv{animation:bl .5s infinite}
+#lcd .erec{position:absolute;right:2.4cqw;bottom:9.6cqw;font-size:3.2cqw}
+#lcd .mbox{position:absolute;right:1.4cqw;top:3.6cqw;font-size:2.6cqw;border:.3cqw solid #f6f1dc;padding:0 .4cqw;line-height:1.1}
 .ticks{display:grid;grid-template-columns:repeat(7,1fr);height:16px;position:relative}.ticks i{border-top:2px solid #8d8f94;margin:4px 3px 0;position:relative}.ticks i::after{content:"";position:absolute;left:50%;top:0;height:11px;border-left:2px solid #8d8f94}
 .ticks i:first-child,.ticks i:nth-child(7){visibility:hidden}.ticks span{position:absolute;right:2px;top:3px;font-size:9px;color:#777;font-style:italic;font-weight:700}
 .krow{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:4px;justify-items:center}
@@ -159,15 +170,6 @@ body[data-tab=dmi] #pDmi,body[data-tab=radio] #pRadio,body[data-tab=guide] #pGui
 #log div{padding:6px 9px;border-radius:8px;background:#262c35}
 #log .me{background:#3b3320;margin-left:22px}#log .sys{background:none;border:1px dashed var(--line);color:var(--mut);font-size:12.5px}
 #log small{display:block;color:var(--mut);font-size:11px}
-.ttsbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 10px}
-.ttsbar .btn{white-space:nowrap;flex:0 0 auto}
-.ttsbar select{flex:1 1 150px;min-width:0;background:#2a313c;border:1px solid var(--line);border-radius:6px;padding:8px;color:inherit;font:inherit;font-size:13px}
-.ttsbar label{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--mut);white-space:nowrap}
-.ttsbar label input{accent-color:var(--acc)}
-#ttsBtn.speaking{border-color:var(--ok);color:var(--ok)}
-#ttsBtn.speaking::after{content:"";display:inline-block;width:7px;height:7px;margin-left:7px;border-radius:50%;background:var(--ok);animation:bl .8s infinite}
-#ttsNote{font-size:12.5px;color:var(--mut);margin:-4px 0 10px}
-#ttsNote.warn{color:var(--bad)}
 
 /* ---------- instruktor ---------- */
 .gcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
@@ -183,8 +185,10 @@ details p,details li{color:#b9c0cb;font-size:14px}kbd{background:#111;border:1px
 <body data-tab="dmi">
 <header>
   <h1>Symulator ETCS + radiotelefon pociągowy<small>DMI · radio 150 MHz · GSM-R — pomoc szkoleniowa, wersja uproszczona</small></h1>
+  <select class="hb" id="scnSel" aria-label="Scenariusz"><option value="gdynia">Scenariusz: Gdynia Gł. → Iława</option><option value="cisowa">Scenariusz: Gdynia Cisowa → Iława (SHP → poziom 2)</option></select>
   <button class="hb on" id="bSnd">Dźwięk: wł.</button>
   <button class="hb" id="bSpk">Mowa: wył.</button>
+  <button class="hb on" id="bCov">Zasięg RBC: jest</button>
   <button class="hb" id="bRst">Reset</button>
   <nav>
     <button data-t="dmi" class="act">Kabina ETCS</button>
@@ -203,15 +207,16 @@ details p,details li{color:#b9c0cb;font-size:14px}kbd{background:#111;border:1px
     <div class="cell" id="A4"></div>
     <svg id="B" width="280" height="300" viewBox="0 0 280 300">
       <g id="ticks"></g>
-      <path id="cg1" fill="none" stroke="#555" stroke-width="9"/>
+      <path id="cg1" fill="none" stroke="#969696" stroke-width="9"/>
       <path id="cg2" fill="none" stroke="#dfdf00" stroke-width="9"/>
-      <path id="cg3" fill="none" stroke="#ea9100" stroke-width="20"/>
+      <path id="cg3" fill="none" stroke="#ea9100" stroke-width="9"/>
       <line id="hook" stroke="#c3c3c3" stroke-width="6"/>
       <g id="needle"><path d="M-4.5,0L-4.5,-82L-1.5,-90L-1.5,-105L1.5,-105L1.5,-90L4.5,-82L4.5,0Z"/></g>
       <circle id="hub" cx="140" cy="150" r="25"/>
       <text id="spd" x="140" y="158" text-anchor="middle" font-size="22" font-weight="700">0</text>
     </svg>
     <div class="cell" id="B6"></div>
+    <div id="B3"></div>
     <div id="B7"></div>
     <div class="cell" id="C8"></div>
     <div class="cell" id="C9"></div>
@@ -222,7 +227,7 @@ details p,details li{color:#b9c0cb;font-size:14px}kbd{background:#111;border:1px
     <div id="E5"></div>
     <svg id="D" width="246" height="300"></svg>
     <div id="F">
-      <button data-f="main">Główne</button><button data-f="ovr">Pomiń</button><button data-f="data">Widok<br>danych</button><button data-f="spec">Spec</button><button data-f="set">Ustaw.</button>
+      <button data-f="main">Menu</button><button data-f="ovr">Pomiń</button><button data-f="data">Dane</button><button data-f="spec">Spec.</button><button data-f="set" style="font-size:18px">🔧</button>
     </div>
     <div id="G"><div id="gPos"></div><div id="gTrn"></div><div id="gDrv"></div><div id="gLen"></div><div id="gClk"></div><div id="gVer">ETCS SRS 3.6.0 (sym.)</div></div>
     <div id="win"></div>
@@ -230,6 +235,7 @@ details p,details li{color:#b9c0cb;font-size:14px}kbd{background:#111;border:1px
 
   <div class="desk">
     <div id="strip"></div>
+    <div id="sigp"></div>
     <div id="tele"></div>
     <div class="row">
       <button class="btn pri" id="bCab">Aktywuj kabinę</button>
@@ -238,13 +244,15 @@ details p,details li{color:#b9c0cb;font-size:14px}kbd{background:#111;border:1px
         <input type="range" id="lev" min="-100" max="100" step="10" value="0" aria-label="Nastawnik jazdy i hamowania">
       </div>
       <button class="btn sm" id="bZero">0</button>
+      <button class="btn sm" id="bDir">Kierunek: przód</button>
     </div>
     <div class="row">
       <button class="btn dng" id="bEB">Hamowanie nagłe</button>
       <button class="btn rnd" id="bShp">SHP / CA</button>
       <button class="btn rnd yel" id="bAck">Potwierdź ETCS</button>
+      <button class="btn sm" id="bIso">Izolacja EVC: 0</button>
       <span style="color:var(--mut);font-size:13px">Przyspieszenie czasu:</span>
-      <button class="btn sm on" data-w="1">1×</button><button class="btn sm" data-w="2">2×</button><button class="btn sm" data-w="4">4×</button>
+      <button class="btn sm on" data-w="1">1×</button><button class="btn sm" data-w="2">2×</button><button class="btn sm" data-w="4">4×</button><button class="btn sm" data-w="8">8×</button>
     </div>
   </div>
 </section>
@@ -267,42 +275,22 @@ details p,details li{color:#b9c0cb;font-size:14px}kbd{background:#111;border:1px
   <div id="phrHint"></div>
   <div id="phr"></div>
   <h2 style="margin-top:14px">Dziennik łączności</h2>
-  <div class="ttsbar">
-    <button class="btn sm" id="ttsBtn" aria-pressed="false">🔇 Czytaj dziennik</button>
-    <select id="ttsEngine" aria-label="Silnik mowy">
-      <option value="sys">Silnik: systemowy</option>
-      <option value="neural">Silnik: neuronowy</option>
-    </select>
-    <select id="ttsVoice" aria-label="Głos syntezatora mowy"></select>
-    <label><input type="checkbox" id="ttsSys"> także systemowe</label>
-    <button class="btn sm" id="ttsTest" title="Próbka z liczbami">Test</button>
-    <button class="btn sm" id="ttsStop" title="Przerwij czytanie" aria-label="Przerwij czytanie">■</button>
-  </div>
-  <div id="ttsNote" hidden></div>
   <div id="log"></div>
 </section>
 
 <section id="pGuide">
-  <h2>Instruktor — scenariusz: Dobra Wola → Lipowa (10 km)</h2>
+  <h2><span id="scnTitle">Instruktor — trasa: Gdynia Główna → Iława Główna (146 km)</span></h2>
   <div class="gcols">
     <div><ol id="steps"></ol></div>
     <div>
-      <p style="margin-top:0"><b>Dane dla maszynisty:</b> kanał szlakowy radia analogowego: <b>005 (R5)</b>. GSM-R: klawisze ekranowe <b>)1(</b> dyżurny ruchu, <b>)2(</b> dyspozytor liniowy, <b>)ϟ(</b> dyspozytor zasilania, ikona grupy — połączenie grupowe 200. Czerwony przycisk <b>A</b>: Radiostop w 150 MHz, alarm REC (299) w GSM-R. W trybie GSM-R terminal nadal odbiera kanał analogowy (także Radiostop) — kanał zmienisz strzałkami na klawiszach <b>4</b> i <b>6</b> (w GSM-R najpierw przytrzymaj <b>4</b>). Proponowany numer pociągu: <b>54102</b>.</p>
-      <div class="row">
-        <button class="btn sm" id="evAlarm">Zdarzenie: obcy Radiostop (150 MHz)</button>
-        <button class="btn sm" id="evRec">Zdarzenie: obcy alarm REC (GSM-R)</button>
-        <button class="btn sm" id="evCall">Zdarzenie: wywołanie od dyżurnego</button>
-      </div>
-      <p style="margin:12px 0 6px"><b>Sytuacje ETCS:</b></p>
-      <div class="row">
-        <button class="btn sm" id="evTsr">Tymczasowe ograniczenie 60 km/h</button>
-        <button class="btn sm" id="evStop">Rozkaz awaryjnego zatrzymania</button>
-        <button class="btn sm" id="evLoss">Utrata łączności z RBC (poziom 2)</button>
-        <button class="btn sm" id="evBal">Błąd balisy</button>
-        <button class="btn sm" id="evLt">Granica obszaru ETCS → SHP</button>
-      </div>
+      <p style="margin-top:0"><b>Rozkład:</b> <span id="scnFirst">Gdynia Gł. (odjazd)</span> – Gdańsk Gł. – Tczew – Malbork – Iława Gł. Pozostałe stacje bez zatrzymania. <b>RBC na odcinkach:</b> Gdynia (do km 10), Gdańsk (10–40), Tczew (40–62), Malbork (62–100), Iława (od 100) — przy jeździe w poziomie 2 przekazanie następuje samo.</p>
+      <p><b>Dane dla maszynisty:</b> kanał szlakowy radia analogowego: <b>005 (R5)</b>. GSM-R: klawisze ekranowe <b>)1(</b> dyżurny ruchu, <b>)2(</b> dyspozytor liniowy, <b>)ϟ(</b> dyspozytor zasilania, ikona grupy — połączenie grupowe 200. Czerwony przycisk <b>A</b>: Radiostop w 150 MHz, alarm REC (299) w GSM-R. W GSM-R kanał analogowy odbierasz po włączeniu funkcji VHF w GSM-R (* i klawisz <b>VHF+GSMR</b>; na ekranie pojawia się „VHF 005”). Kanał zmieniasz dłuższym naciśnięciem <b>4</b> lub <b>6</b>, a potem pojedynczymi naciśnięciami; po 4 s klawisze wracają do zwykłej pracy. Uwaga: w tym trybie odebrany Radiostop nie hamuje pociągu i nie jest pokazywany na wyświetlaczu. Proponowany numer pociągu: <b>54102</b>.</p>
+      <p style="margin:12px 0 6px"><b>Zdarzenia do przećwiczenia</b> są w panelu „⚡ Symulacja zdarzeń” na dole ekranu.</p>
       <p style="margin:12px 0 6px"><b>Wartości narodowe (zachowanie hamulca):</b></p>
       <div class="row"><button class="btn sm" data-nv="sbTsm"></button><button class="btn sm" data-nv="relStand"></button><button class="btn sm" data-nv="ca"></button></div>
+      <details><summary>Dane RBC do wpisania (poziom 2, sieć GSM-R 26035)</summary>
+        <p>Kolejno: Poziom 2 → Dane radiowe → przytrzymaj 2 s „ID sieci radiowej”, wybierz GSM-R PL i dotknij pola → „Wprowadź dane RBC”, wpisz ID i numer telefonu → „Tak”.</p>
+        <table style="font-size:13px;border-collapse:collapse;width:100%"><tr><th align="left">RBC</th><th align="left">ID RBC</th><th align="left">Numer telefonu RBC</th></tr><tr><td>Bolesławiec</td><td>5586945</td><td>0048738599601</td></tr><tr><td>Wrocław Muchobór</td><td>5586946</td><td>0048738599602</td></tr><tr><td>Opole Zachodnie</td><td>5586947</td><td>0048738599604</td></tr><tr><td>Nasielsk</td><td>5586948</td><td>0048738599101</td></tr><tr><td>Ciechanów</td><td>5586949</td><td>0048738599501</td></tr><tr><td>Działdowo</td><td>5586950</td><td>0048738599502</td></tr><tr><td>Iława</td><td>5586951</td><td>0048738599503</td></tr><tr><td>Malbork</td><td>5586952</td><td>0048738599504</td></tr><tr><td>Tczew</td><td>5586953</td><td>0048738599505</td></tr><tr><td>Gdańsk</td><td>5586954</td><td>0048738599506</td></tr><tr><td>Gdynia</td><td>5586955</td><td>0048738599507</td></tr></table></details>
       <details><summary>Sterowanie i klawisze</summary>
         <ul><li><kbd>↑</kbd>/<kbd>W</kbd> więcej rozruchu, <kbd>↓</kbd>/<kbd>S</kbd> więcej hamowania, <kbd>Spacja</kbd> wybieg</li>
         <li><kbd>Enter</kbd> potwierdzenie żądania na DMI (migające pole pod prędkościomierzem)</li>
@@ -311,222 +299,105 @@ details p,details li{color:#b9c0cb;font-size:14px}kbd{background:#111;border:1px
         <ul><li>Łuk wokół tarczy: szary do prędkości dozwolonej, żółty między prędkością docelową a dozwoloną (hamowanie do celu). Haczyk = prędkość dozwolona.</li>
         <li>Wskazówka pomarańczowa = przekroczenie prędkości dozwolonej, czerwona = interwencja ETCS.</li><li>Przy stałej prędkości: najpierw hamowanie służbowe (ok. +5,5 do +10 km/h), które puszcza po zejściu do prędkości dozwolonej; dalej hamowanie nagłe (ok. +7,5 do +15 km/h).</li><li>Przy hamowaniu do celu (niższa prędkość, koniec zezwolenia): spóźnione hamowanie kończy się hamowaniem nagłym. Hamulec puszcza po zejściu poniżej prędkości dozwolonej albo dopiero po zatrzymaniu i potwierdzeniu — zależnie od przełącznika wartości narodowych.</li><li>Przekroczenie prędkości zwolnienia (20 km/h) przed końcem zezwolenia = hamowanie nagłe; minięcie końca zezwolenia = TRIP.</li>
         <li>Lewy słupek: odległość do celu. Prawa część: planowanie — profil prędkości na 4 km do przodu.</li>
-        <li>Tryby: SB postój, SR odpowiedzialność personelu (40 km/h), FS pełny nadzór, OS na widoczność (20 km/h), SH jazda manewrowa (25 km/h), UN poziom 0, SN jazda pod SHP, TR/PT awaryjne zatrzymanie i stan po nim.</li><li>Czuwak aktywny: powyżej 10 km/h co 60 s zapala się przycisk „SHP / CA”. Potwierdź w 5 s, inaczej hamowanie nagłe.</li><li>Po hamowaniu nagłym rozruch wraca dopiero po zatrzymaniu, ustawieniu nastawnika na 0 i napełnieniu przewodu głównego (ok. 4 s).</li><li>Hamulec narasta i luzuje z opóźnieniem, a siła pociągowa powyżej ok. 40 km/h spada z prędkością — hamuj z wyprzedzeniem.</li><li>Poziom SHP: ETCS pilnuje tylko prędkości maksymalnej. Przed semaforami zapala się przycisk SHP — potwierdź w 5 s (przycisk SHP albo klawisz C), inaczej hamowanie nagłe.</li><li>Ręczna zmiana z SHP lub poziomu 0 na poziom 1/2 bez zezwolenia na jazdę kończy się TRIP.</li><li>W trybie SR minięcie semafora „Stój” bez funkcji „Pomiń” to TRIP. „Pomiń” działa 60 s lub 200 m, do 30 km/h.</li></ul></details>
+        <li>Tryby: SB postój, SR odpowiedzialność personelu (40 km/h), FS pełny nadzór, OS na widoczność (40 km/h), SH jazda manewrowa (25 km/h), UN poziom 0 (do 160 km/h), SN jazda pod SHP, TR/PT awaryjne zatrzymanie i stan po nim.</li><li>Czuwak aktywny: powyżej 10 km/h co 60 s zapala się przycisk „SHP / CA”. Potwierdź w 5 s, inaczej hamowanie nagłe.</li><li>Po hamowaniu nagłym rozruch wraca dopiero po zatrzymaniu, ustawieniu nastawnika na 0 i napełnieniu przewodu głównego (ok. 4 s).</li><li>Hamulec narasta i luzuje z opóźnieniem, a siła pociągowa powyżej ok. 40 km/h spada z prędkością — hamuj z wyprzedzeniem.</li><li>Po START w poziomie 2 z sesją RBC: ETCS wysyła żądanie zezwolenia na jazdę (klepsydra). Gdy RBC zna pozycję pociągu, od razu wchodzisz w Pełny Nadzór bez potwierdzania; gdy pozycja jest nieznana (np. po resecie EVC albo przełącznikiem w Instruktorze), RBC zezwala tylko na SR.</li><li>Po START: SHP — potwierdź SN dotknięciem; poziom 1 (i poziom 2 bez sesji lub z nieznaną pozycją) — potwierdź SR, PRZYTRZYMUJĄC symbol (lub żółty przycisk / Enter) ok. 1 s. Poziom 1: FS po najechaniu na balisę semafora zezwalającego. Poziom 2: przy tej balisie żądanie OS do potwierdzenia, FS po zajęciu kolejnego odcinka.</li><li>Manewrowanie i koniec jazdy manewrowej: przytrzymaj przycisk w menu ok. 1 s. Przejechanie granicy manewrów (⊣SH na pasku) = Zatrzymanie Przez System.</li><li>Hamowanie nagłe z innych przyczyn niż minięcie semafora: po zatrzymaniu dotknij migającego symbolu hamulca pod ikoną poziomu — tryb FS zostaje.</li><li>Poziom 2: po wyborze poziomu wpisz dane pociągu i numer — dopiero wtedy ETCS sprawdza połączenie z RBC. Przycisk „Zasięg RBC” na górze strony wyłącza zasięg. Bez zasięgu wpisz dane RBC (Dane radiowe → Wprowadź dane RBC), START → SR. Po włączeniu zasięgu ETCS połączy się z RBC, zaproponuje OS (potwierdź), a po chwili przejdzie w Pełny Nadzór.</li><li>W trybie SR prędkościomierz nie pokazuje obwiedni. Dotknięcie lewej części tarczy pokazuje pogrubiony znacznik prędkości dozwolonej (40 km/h), kolejne dotknięcie go chowa.</li><li>Plan trasy: + / − w lewym górnym i dolnym rogu zmieniają zakres 1–16 km.</li><li>Poziom SHP (tryb SN): ETCS nie nadzoruje prędkości — nie zahamuje nawet powyżej 160 km/h. Prędkości pilnuje maszynista według rozkładu i sygnałów. Przed semaforami zapala się przycisk SHP — potwierdź w 5 s (przycisk SHP albo klawisz C), inaczej hamowanie nagłe.</li><li>Ręczna zmiana z SHP lub poziomu 0 na poziom 1/2 bez zezwolenia na jazdę kończy się TRIP.</li><li>W trybie SR minięcie semafora „Stój” bez funkcji „Pomiń” to TRIP. „Pomiń” działa 60 s lub 200 m, do 30 km/h.</li></ul></details>
       <details><summary>Uproszczenia względem rzeczywistości</summary>
         <p>To pomoc do nauki kolejności czynności, a nie odwzorowanie certyfikowanych urządzeń. Krzywe hamowania, symbole trybów, układ menu radiotelefonu i częstotliwości kanałów są uproszczone lub orientacyjne. W prawdziwej pracy obowiązują instrukcje zarządcy infrastruktury (m.in. Ir-1, Ie-14) i dokumentacja producenta urządzeń.</p></details>
     </div>
   </div>
 </section>
 </main>
+<div id="simBar"><button id="simTog">⚡ Symulacja zdarzeń <span>▲</span></button><div id="simGrid">
+  <div class="sg"><h4>Poziomy ETCS (zapowiedź z balisy)</h4><button class="btn sm" data-sim="lv1">Zapowiedź → poziom 1</button><button class="btn sm" data-sim="lv2">Zapowiedź → poziom 2</button><button class="btn sm " id="evLt">Zapowiedź → SHP</button><button class="btn sm" data-sim="lv0">Zapowiedź → poziom 0</button></div>
+  <div class="sg"><h4>Zezwolenie i semafory</h4><button class="btn sm " id="evDrop">Semafor zmienia się na STÓJ</button><button class="btn sm" data-sim="sz">Sygnał zastępczy Sz (tryb OS)</button><button class="btn sm " id="evTsr">Ograniczenie doraźne 60 km/h</button><button class="btn sm" data-sim="ces">Warunkowe zatrzymanie awaryjne (poz. 2)</button><button class="btn sm " id="evStop">Bezwarunkowe zatrzymanie (TRIP)</button></div>
+  <div class="sg"><h4>Łączność</h4><button class="btn sm " id="evLoss">Błąd komunikacji z RBC</button><button class="btn sm" data-sim="cov">Zasięg GSM-R: wł./wył.</button><button class="btn sm" data-sim="ho">Nieudane przekazanie RBC</button><button class="btn sm" data-sim="taf">Żądanie TAF (tor wolny)</button><button class="btn sm on" id="evPos">Pozycja pociągu dla RBC: znana</button></div>
+  <div class="sg"><h4>Urządzenia pokładowe</h4><button class="btn sm " id="evBal">Błąd balisy</button><button class="btn sm" data-sim="sf">Awaria ETCS (tryb SF)</button></div>
+  <div class="sg"><h4>Trasa</h4><button class="btn sm" data-sim="neu">Sekcja neutralna (opuść pantograf)</button><button class="btn sm" data-sim="lx">Przejazd niestrzeżony (LX)</button><button class="btn sm" data-sim="slip">Śliska szyna (przyczepność)</button><button class="btn sm" data-sim="txt">Wiadomość tekstowa z RBC</button><button class="btn sm on" id="evScen">Sytuacje na trasie: wł.</button></div>
+  <div class="sg"><h4>Radio</h4><button class="btn sm " id="evAlarm">Obcy Radiostop (150 MHz)</button><button class="btn sm " id="evRec">Obcy alarm REC (GSM-R)</button><button class="btn sm " id="evCall">Wywołanie od dyżurnego</button></div>
+</div></div>
+
 
 <script>
 "use strict";
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const TRACK={len:10400,ssp:[[0,100],[1500,160],[4000,120],[5500,160],[8000,80],[9000,40]],sig:[3000,6500,9900],plat:[9650,9850],os:[9000,9900],chan:5};
-const FREQ={1:'150.100',2:'150.150',3:'150.225',4:'150.325',5:'150.375',6:'150.450',7:'150.575',8:'150.500'};
-const EOAS=[0,3000,6500,9900];
-let mute=false;
-const NV={sbTsm:false,relStand:false,ca:true};
-const NVV={sr:40,os:20,sh:25,rel:20,un:100,ovr:30,dOvr:200,tOvr:60};
+const SCN=location.hash==='#cisowa'?'cisowa':'gdynia', OFF=SCN==='cisowa'?5000:0;
+const L2B=SCN==='cisowa'?{ann:1500,ack:2500,bord:3000}:null;
+const STATIONS0=[
+  {n:'Gdynia Główna',c:400,stop:true,first:true},{n:'Sopot',c:9000},{n:'Gdańsk Oliwa',c:13500},{n:'Gdańsk Wrzeszcz',c:18000},
+  {n:'Gdańsk Główny',c:21500,stop:true},{n:'Pruszcz Gdański',c:30000},{n:'Tczew',c:53000,stop:true},{n:'Malbork',c:71000,stop:true},
+  {n:'Prabuty',c:105000},{n:'Susz',c:118000},{n:'Iława Główna',c:146000,stop:true,end:true}];
+const STATIONS=SCN==='cisowa'?[{n:'Gdynia Cisowa',c:400,stop:true,first:true}].concat(STATIONS0.map(x=>Object.assign({},x,{c:x.c+OFF,first:false}))):STATIONS0;
+const SIGS=[];
+(function buildSigs(){ STATIONS.forEach((st,i)=>{ st.plat=[st.c-130,st.c+130];
+    if(!st.first) SIGS.push({n:'Wjazd '+st.n,s:st.c-1200,t:'wj',a:'go',st});
+    const ex={n:(st.end?'Koniec toru ':'Wyjazd ')+st.n,s:st.first?900:st.c+500,t:'wyj',a:st.stop?'stop':'go',auto:true,st}; SIGS.push(ex); st.ex=ex;
+    const nx=STATIONS[i+1]; if(!nx) return; const a=ex.s, b=nx.c-1200, k=Math.floor((b-a)/2200);
+    for(let j=1;j<k;j++){ const p=Math.round(a+(b-a)*j/k); SIGS.push({n:'Sbl '+(p/1000).toFixed(1).replace('.',','),s:p,t:'sbl',a:'go'}); } });
+  SIGS.sort((x,y)=>x.s-y.s); })();
+const TRACK={bg:SIGS.map(g=>g.s),sig:SIGS.map(g=>g.s),shb:700,
+  grad:[[0,0]].concat([[5000,4],[8000,-3],[12000,0],[26000,2],[40000,-2],[52000,0],[60000,3],[75000,-4],[90000,5],[100000,0],[125000,-3],[140000,0]].map(p=>[p[0]+OFF,p[1]])),
+  tc:[{s:24800,e:24860,t:'horn'},{s:54100,e:55000,t:'nostop'},{s:55400,e:55520,t:'neu'},{s:70100,e:70600,t:'nostop'},{s:88000,e:88060,t:'horn'},{s:96000,e:99000,t:'nogsm'},{s:126500,e:126560,t:'horn'}].map(c=>Object.assign(c,{s:c.s+OFF,e:c.e+OFF})),
+  len:146700+OFF,chan:5,
+  ssp:(OFF?[[0,60],[1500,100]]:[]).concat([[0,60],[1500,120],[3500,160],[8200,120],[9800,160],[17000,120],[20500,80],[22500,120],[24500,160],[51500,120],[52500,100],[54800,120],[56000,160],[69500,100],[72500,160],[103500,140],[106500,160],[143500,100],[145200,80],[146200,40]].map(p=>[p[0]+OFF,p[1]]))};
+const kmS=x=>(x/1000).toFixed(1).replace('.',',');
+const sigByName=n=>SIGS.find(g=>g.n===n);
+function setAsp(g,a,why){ if(!g) return; g.a=a; if(why) sysLog(why); }
+const RBCAREA=[[10000+OFF,'Gdynia'],[40000+OFF,'Gdańsk'],[62000+OFF,'Tczew'],[100000+OFF,'Malbork'],[1e9,'Iława']];
+const rbcArea=(x=S.pos)=>RBCAREA.find(r=>x<r[0])[1];
+
+let mute=false, speech=false;
+const NV={sbTsm:false,relStand:true,ca:true,cov:true};
+const NVV={sr:40,os:40,sh:25,rel:20,un:160,ovr:30,dOvr:200,tOvr:60};
 function margins(P){ const f=(lo,hi)=>P<=110?lo:P>=210?hi:lo+(hi-lo)*(P-110)/100; return {w:P<=110?4:P>=140?5:4+(P-110)/30,sbi:f(5.5,10),ebi:f(7.5,15)}; }
-function prof(){ const t=S.tsr; if(!t) return TRACK.ssp; const at=x=>{ let v=0; for(const p of TRACK.ssp) if(p[0]<=x) v=p[1]; return v; };
-  return [...new Set([...TRACK.ssp.map(p=>p[0]),t.s,t.e])].sort((a,b)=>a-b).map(x=>[x,x>=t.s&&x<t.e?Math.min(at(x),t.v):at(x)]); }
+function prof(){ const R=[S.tsr,S.lx&&{s:S.lx.s-10,e:S.lx.s+40,v:S.lx.v}].filter(Boolean); if(!R.length) return TRACK.ssp; const at=x=>{ let v=0; for(const p of TRACK.ssp) if(p[0]<=x) v=p[1]; return v; };
+  return [...new Set([...TRACK.ssp.map(p=>p[0]),...R.flatMap(t=>[t.s,t.e])])].sort((a,b)=>a-b).map(x=>[x,R.reduce((v,t)=>x>=t.s&&x<t.e?Math.min(v,t.v):v,at(x))]); }
 function ebTrig(why){ if(S.ebi)return; S.ebi=true; S.sbi=false; msg('HAMOWANIE NAGŁE ETCS — '+why,true); tone(500,.6,.1,'square'); }
 
 /* ================= stan pociągu / ETCS ================= */
 const S={cab:false,boot:0,mode:'SB',level:null,rbc:'off',driverId:'',trn:'',dataValid:false,
-  train:{cat:'Jazda pojedyncza',n:1,len:76,mass:169,bp:135,vmax:160},pos:90,v:0,lever:0,eb:false,sbi:false,ebi:false,rs:false,ackBrake:false,
-  eoa:null,stage:1,started:false,srFrom:0,override:false,ack:null,msgs:[],t:0,warp:1,holdT:0,warned:false,arrived:false,cleared:false,sup:{base:0,P:0}};
+  train:{cat:'Jazda pojedyncza',n:1,len:76,mass:169,bp:135,vmax:160},pos:450,v:0,lever:0,eb:false,sbi:false,ebi:false,rs:false,ackBrake:false,
+  eoa:null,stopped:new Set(),scen:true,posKnown:true,started:false,srFrom:0,override:false,ack:null,msgs:[],t:0,warp:1,holdT:0,warned:false,arrived:false,cleared:false,sup:{base:0,P:0}};
 const G={test:false,ready:false,reported:false,arrRep:false,stopEoa:false,os:false,closed:false,fs:false};
 const Q=[]; const after=(s,fn)=>Q.push({t:S.t+s,fn});
-const el={}; ['dOff','A1','A2','A3','A4','B6','B7','C8','C9','C7','C1','C2','E1','E5','D','win','gPos','gTrn','gDrv','gLen','gClk','needle','hub','spd','cg1','cg2','cg3','hook'].forEach(i=>el[i]=document.getElementById(i));
+const el={}; ['B3','dOff','A1','A2','A3','A4','B6','B7','C8','C9','C7','C1','C2','E1','E5','D','win','gPos','gTrn','gDrv','gLen','gClk','needle','hub','spd','cg1','cg2','cg3','hook'].forEach(i=>el[i]=document.getElementById(i));
 
 /* ---------- dźwięk ---------- */
 let AC=null;
 function tone(f,d,vol=.07,type='sine',when=0){ if(mute)return; try{ AC=AC||new (window.AudioContext||window.webkitAudioContext)(); if(AC.state==='suspended')AC.resume();
   const o=AC.createOscillator(),g=AC.createGain(); o.type=type;o.frequency.value=f;g.gain.value=vol; o.connect(g);g.connect(AC.destination); o.start(AC.currentTime+when);o.stop(AC.currentTime+when+d);}catch(e){} }
-const click=()=>tone(1400,.03,.03,'square');
-/* ---------- synteza mowy (TTS) dziennika łączności ---------- */
-const TTS={on:false,sys:false,engine:'sys',rate:1,sel:'',voices:[],all:[],q:[],busy:false,cur:null,wd:null,retry:0,cool:0};
-const TTS_KEY='etcs.tts.v1';
-const TTS_MALE=/marek|krzysztof|jacek|adam|michał|michal|piotr|paweł|pawel|andrzej|zbigniew|\bjan\b|male|męski/i;
-const TTS_FEM=/zofia|zosia|paulina|agnieszka|ewa|julia|kobieta|female/i;
-const TTS_GOOD=/zofia|paulina|marek|agnieszka|krzysztof|ewa|jacek|julia|google/i;
-const TTS_PROF={dr:{k:'male',rate:.97,pitch:.85,vol:1},dysp:{k:'male',rate:1,pitch:.9,vol:1},
-  poc:{k:'male',rate:1.02,pitch:1.08,vol:1},me:{k:'female',rate:1,pitch:.95,vol:.55},system:{k:'female',rate:.98,pitch:1,vol:.9}};
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const ttsName=v=>{ const n=String(v.name).replace(/^Microsoft\s+/i,'').replace(/\s*-\s*Polish\s*\(Poland\)\s*$/i,'').replace(/\s*-\s*polski\s*$/i,'').trim(); return n||v.name; };
-/* im wyżej, tym przyjemniejszy głos: naturalne/neuronowe > Google > Microsoft > reszta */
-function ttsScore(v){ let s=0; if(/natural|neural/i.test(v.name))s+=80; if(/online/i.test(v.name))s+=20;
-  if(/google/i.test(v.name))s+=55; if(/microsoft/i.test(v.name))s+=30; if(TTS_GOOD.test(v.name))s+=25;
-  if(v.localService===false)s+=5; return s; }
-function ttsLoad(){ try{ const o=JSON.parse(localStorage.getItem(TTS_KEY)||'{}');
-  if(typeof o.on==='boolean')TTS.on=o.on; if(typeof o.sys==='boolean')TTS.sys=o.sys; if(typeof o.sel==='string')TTS.sel=o.sel;
-  if(o.engine==='neural'||o.engine==='sys')TTS.engine=o.engine; }catch(e){} }
-function ttsSave(){ try{ localStorage.setItem(TTS_KEY,JSON.stringify({on:TTS.on,sys:TTS.sys,sel:TTS.sel,engine:TTS.engine})); }catch(e){} }
-function ttsRefresh(){ if(!('speechSynthesis' in window))return; const all=speechSynthesis.getVoices()||[]; TTS.all=all;
-  const pl=all.filter(v=>/^pl/i.test(v.lang||''));
-  TTS.voices=(pl.length?pl:all).slice().sort((a,b)=>ttsScore(b)-ttsScore(a)||a.name.localeCompare(b.name)); ttsUI(); }
-function ttsPick(kind){ const list=TTS.voices.length?TTS.voices:TTS.all; if(!list.length)return null;
-  if(TTS.sel){ const v=list.find(x=>x.name===TTS.sel); if(v)return v; }
-  const pool=list.filter(v=>(kind==='male'?TTS_MALE:TTS_FEM).test(v.name)); return (pool.length?pool:list)[0]||null; }
-/* liczby po polsku — model neuronowy nie czyta cyfr, więc zamieniamy je na słowa */
-const PL_D=['zero','jeden','dwa','trzy','cztery','pięć','sześć','siedem','osiem','dziewięć'];
-const PL_T=['','dziesięć','dwadzieścia','trzydzieści','czterdzieści','pięćdziesiąt','sześćdziesiąt','siedemdziesiąt','osiemdziesiąt','dziewięćdziesiąt'];
-const PL_N=['dziesięć','jedenaście','dwanaście','trzynaście','czternaście','piętnaście','szesnaście','siedemnaście','osiemnaście','dziewiętnaście'];
-const PL_H=['','sto','dwieście','trzysta','czterysta','pięćset','sześćset','siedemset','osiemset','dziewięćset'];
-function plTens(n){ if(n<10)return PL_D[n]; if(n<20)return PL_N[n-10]; const t=(n/10)|0,r=n%10; return PL_T[t]+(r?' '+PL_D[r]:''); }
-function plHund(n){ const h=(n/100)|0,r=n%100; return [h?PL_H[h]:'',r?plTens(r):''].filter(Boolean).join(' '); }
-function plPlural(n,one,few,many){ const a=Math.abs(n)%100,b=a%10;
-  if(a===1)return one; if(b>=2&&b<=4&&(a<12||a>14))return few; return many; }
-function plInt(n){ n=Math.abs(n|0); if(!n)return 'zero';
-  const th=(n/1000)|0,r=n%1000; let s='';
-  if(th) s=th===1?'tysiąc':plHund(th)+' '+plPlural(th,'tysiąc','tysiące','tysięcy');
-  if(r) s+=(s?' ':'')+plHund(r); return s; }
-function plDigits(s){ return String(s).replace(/\d/g,d=>PL_D[+d]+' ').replace(/[-–—/.]/g,' ').replace(/\s+/g,' ').trim(); }
-function plNums(t){ return t
-  .replace(/(\d+)[,.](\d+)\s*km\/h/gi,(m,a,b)=>plInt(a)+' przecinek '+plDigits(b)+' kilometrów na godzinę')
-  .replace(/(\d+)\s*km\/h/gi,(m,a)=>plInt(a)+' kilometrów na godzinę')
-  .replace(/\bkm\s+(\d+)[,.](\d+)/gi,(m,a,b)=>'kilometr '+plInt(a)+' przecinek '+plDigits(b))
-  .replace(/\bkm\s+(\d+)/gi,(m,a)=>'kilometr '+plInt(a))
-  .replace(/\b(\d+),(\d+)\b/g,(m,a,b)=>plInt(a)+' przecinek '+plDigits(b))
-  .replace(/(\d+)\s*%/g,(m,a)=>plInt(a)+' procent')
-  .replace(/(\d+)\s*MHz/g,(m,a)=>plInt(a)+' megaherców')
-  .replace(/(\d+)\s*s\b/g,(m,a)=>plInt(a)+' '+plPlural(+a,'sekunda','sekundy','sekund'))
-  .replace(/(\d+)\s*t\b/g,(m,a)=>plInt(a)+' '+plPlural(+a,'tona','tony','ton'))
-  .replace(/(\d+)\s*m\b/g,(m,a)=>plInt(a)+' metrów')
-  .replace(/\bR(\d+)\b/g,(m,a)=>'er '+plDigits(a))
-  .replace(/\bnumer\s+(\d+)/gi,(m,a)=>'numer '+plDigits(a))
-  .replace(/\b\d+(?:-\d+)+\b/g,m=>plDigits(m))
-  .replace(/\b\d+\.\d+\.\d+\b/g,m=>plDigits(m))
-  .replace(/\b\d{4,}\b/g,m=>plDigits(m))
-  .replace(/\b\d+\b/g,m=>plInt(m)); }
-function ttsClean(t){ return plNums(String(t).replace(/<[^>]*>/g,' ').replace(/&nbsp;/g,' ').replace(/&amp;/g,' i ').replace(/&[a-z#0-9]+;/gi,' '))
-  .replace(/\bETCS\b/g,'E T C S').replace(/\bGSM-R\b/g,'G S M R').replace(/\bRBC\b/g,'R B C').replace(/\bSHP\b/g,'S H P')
-  .replace(/\bDMI\b/g,'D M I').replace(/\bVHF\b/g,'V H F').replace(/\bREC\b/g,'R E C').replace(/\bPTT\b/g,'P T T')
-  .replace(/\bpoc\./gi,'pociągu').replace(/\s+/g,' ').trim(); }
-function ttsChunks(t){ const s=ttsClean(t); if(!s)return []; const parts=s.match(/[^.!?…]+[.!?…]*/g)||[s]; const out=[]; let b='';
-  for(const p of parts){ const x=p.trim(); if(!x)continue;
-    if((b?b.length+1:0)+x.length>170){ if(b)out.push(b); b=x; } else b=b?b+' '+x:x; }
-  if(b)out.push(b); return out; }
-function ttsSay(t,o){ if(!TTS.on)return; const ch=ttsChunks(t); if(!ch.length)return;
-  const prof=(o&&o.prof)||'system', vol=o&&o.vol;
-  for(const c of ch) TTS.q.push({text:c,prof,vol});
-  if(TTS.q.length>10)TTS.q.splice(0,TTS.q.length-10); ttsPump(); }
-function ttsPump(){ if(!TTS.on||TTS.busy||!TTS.q.length)return;
-  const it=TTS.q.shift();
-  if(TTS.engine==='neural'){ neuSpeak(it); return; }
-  if(!('speechSynthesis' in window))return;
-  const p=TTS_PROF[it.prof]||TTS_PROF.system;
-  if(!TTS.all.length&&TTS.retry<12){ TTS.retry++; TTS.q.unshift(it); setTimeout(ttsPump,250); return; }  // poczekaj na listę głosów
-  if(TTS.cool&&performance.now()-TTS.cool<90){ TTS.q.unshift(it); setTimeout(ttsPump,100); return; }        // chwila po cancel()
-  TTS.retry=0; TTS.cool=0;
-  const u=new SpeechSynthesisUtterance(it.text), v=ttsPick(p.k), neural=!!(v&&/natural|neural/i.test(v.name));
-  if(v){ u.voice=v; u.lang=v.lang; } else u.lang='pl-PL';
-  u.rate=Math.max(.5,Math.min(2,p.rate*TTS.rate)); u.pitch=neural?1:p.pitch; u.volume=it.vol!=null?it.vol:p.vol;
-  let done=false; const fin=()=>{ if(done)return; done=true; clearTimeout(TTS.wd); TTS.busy=false; TTS.cur=null; ttsUI(); ttsPump(); };
-  u.onend=fin; u.onerror=fin; TTS.busy=true; TTS.cur=u; ttsUI();
-  try{ speechSynthesis.resume(); speechSynthesis.speak(u); }catch(e){ fin(); return; }
-  TTS.wd=setTimeout(fin,3000+it.text.length*190); }
-function ttsStop(){ TTS.q=[]; TTS.busy=false; TTS.cur=null; TTS.retry=0; TTS.cool=performance.now(); clearTimeout(TTS.wd);
-  if(NEU.src){ try{ NEU.src.stop(); }catch(e){} NEU.src=null; }
-  try{ if('speechSynthesis' in window) speechSynthesis.cancel(); }catch(e){} ttsUI(); }
-function ttsUI(){ const sup='speechSynthesis' in window, loading=NEU.state==='loading';
-  const h=$('#bSpk'); if(h){ h.disabled=!sup&&TTS.engine!=='neural'; h.textContent='Mowa: '+(TTS.on?'wł.':'wył.'); h.classList.toggle('on',TTS.on); }
-  const b=$('#ttsBtn'); if(b){ b.textContent=loading?`⏳ Model ${NEU.progress}%`:TTS.busy?'🔊 Czyta…':TTS.on?'🔊 Czytaj dziennik':'🔇 Czytaj dziennik';
-    b.classList.toggle('on',TTS.on); b.classList.toggle('speaking',TTS.busy&&!loading); b.setAttribute('aria-pressed',TTS.on?'true':'false'); }
-  const e=$('#ttsEngine'); if(e)e.value=TTS.engine;
-  const c=$('#ttsSys'); if(c)c.checked=!!TTS.sys;
-  const s=$('#ttsVoice'); if(s){ const neural=TTS.engine==='neural';
-    s.disabled=!sup||neural; s.style.display=neural?'none':''; const auto=TTS.voices[0]||TTS.all[0];
-    s.innerHTML=`<option value="">Automatyczny — ${auto?esc(ttsName(auto)):'domyślny'}</option>`+
-      TTS.voices.map(v=>`<option value="${esc(v.name)}">${esc(ttsName(v))}${/^pl/i.test(v.lang||'')?'':' · '+esc(v.lang||'')}</option>`).join('');
-    s.value=TTS.voices.some(v=>v.name===TTS.sel)?TTS.sel:''; }
-  const n=$('#ttsNote'); if(n){ let t='';
-    if(TTS.engine==='neural') t=NEU.state==='loading'?`Pobieranie modelu neuronowego: ${NEU.progress}%${NEU.file?' · '+NEU.file:''} (tylko raz, potem z cache)`
-      :NEU.state==='ready'?`Model neuronowy gotowy — ${NEU.device==='webgpu'?'WebGPU':'CPU (WASM)'}, 44,1 kHz`
-      :NEU.state==='error'?`Model neuronowy niedostępny (${NEU.err.slice(0,70)}). Używam głosu systemowego.`
-      :'Model neuronowy (~190 MB) pobierze się przy pierwszym komunikacie.';
-    n.textContent=t; n.hidden=!t; n.classList.toggle('warn',NEU.state==='error'); } }
-function ttsEnable(on){ TTS.on=!!on; ttsSave();
-  if(!TTS.on)ttsStop();
-  else { if(TTS.engine==='neural') neuReady().catch(()=>{}); else ttsRefresh();
-    ttsSay('Czytanie dziennika łączności włączone.',{prof:'system'}); }
-  ttsUI(); }
-function ttsLog(from,text,cls){ if(!TTS.on)return;
-  if(cls==='sys'){ if(TTS.sys)ttsSay(text,{prof:'system'}); return; }
-  if(cls==='me'){ ttsSay(text,{prof:'me'}); return; }
-  const f=String(from||''); ttsSay(text,{prof:/Dyspozytor/.test(f)?'dysp':/Dyżurny/.test(f)?'dr':'poc'}); }
-function speak(t){ ttsSay(t,{prof:'system'}); }
-/* ---------- silnik neuronowy: Supertonic 3 (transformers.js, WebGPU/WASM) ---------- */
-const NEU={state:'idle',pipe:null,loading:null,progress:0,files:{},file:'',device:'',err:'',ctx:null,src:null,
-  steps:6,speed:1,
-  voice:{dr:'M2',dysp:'M3',poc:'M1',me:'F2',system:'F1'},
-  url:v=>`https://huggingface.co/open-world-group/Supertonic-3-ONNX/resolve/main/voices/${v}.bin`};
-const TTS_MODEL='open-world-group/Supertonic-3-ONNX';
-const TTS_CDN='https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.0';
-function neuProgress(p){ if(!p||!p.file)return;
-  if(p.status==='progress'||p.status==='download') NEU.files[p.file]={l:p.loaded||0,t:p.total||0};
-  else if(p.status==='done'){ const f=NEU.files[p.file]; if(f&&f.t)f.l=f.t; }
-  let l=0,t=0; for(const k in NEU.files){ l+=NEU.files[k].l; t+=NEU.files[k].t; }
-  NEU.progress=t?Math.min(99,Math.round(l/t*100)):0; NEU.file=String(p.file).split('/').pop(); ttsUI(); }
-function neuReady(){ if(NEU.pipe)return Promise.resolve(NEU.pipe); if(NEU.loading)return NEU.loading;
-  NEU.state='loading'; NEU.progress=0; NEU.files={}; ttsUI();
-  NEU.loading=(async()=>{
-    const mod=await import(TTS_CDN);
-    /* WASM (wielowątkowy, wymaga crossOriginIsolated) — pewny na każdym GPU.
-       WebGPU w niektórych przeglądarkach psuje sesję ORT, więc go nie próbujemy. */
-    const pipe=await mod.pipeline('text-to-speech',TTS_MODEL,{device:'wasm',
-      dtype:{text_encoder:'fp32',latent_denoiser:'q8',voice_decoder:'fp32'},progress_callback:neuProgress});
-    NEU.pipe=pipe; NEU.device='wasm'; NEU.state='ready'; NEU.progress=100; ttsUI(); return pipe;
-  })().catch(e=>{ NEU.state='error'; NEU.err=String((e&&e.message)||e); NEU.loading=null; ttsUI(); throw e; });
-  return NEU.loading; }
-function neuPlay(audio,vol){ return new Promise(res=>{
-  const data=audio&&audio.audio?audio.audio:audio, sr=(audio&&audio.sampling_rate)||44100;
-  const ctx=NEU.ctx||(NEU.ctx=new (window.AudioContext||window.webkitAudioContext)());
-  if(ctx.state==='suspended')ctx.resume();
-  const buf=ctx.createBuffer(1,data.length,sr); buf.copyToChannel(data instanceof Float32Array?data:new Float32Array(data),0);
-  const src=ctx.createBufferSource(); src.buffer=buf;
-  const g=ctx.createGain(); g.gain.value=Math.max(0,Math.min(1,vol==null?1:vol));
-  src.connect(g); g.connect(ctx.destination); NEU.src=src;
-  src.onended=()=>{ if(NEU.src===src)NEU.src=null; res(); };
-  try{ src.start(); }catch(e){ NEU.src=null; res(); } }); }
-async function neuSpeak(it){
-  const p=TTS_PROF[it.prof]||TTS_PROF.system;
-  TTS.busy=true; TTS.cur=it; ttsUI();
-  try{
-    const pipe=await neuReady();
-    if(TTS.cur!==it)return;                                   // przerwano podczas ładowania modelu
-    const audio=await pipe('<pl>'+it.text+'</pl>',{speaker_embeddings:NEU.url(NEU.voice[it.prof]||NEU.voice.system),
-      num_inference_steps:NEU.steps,speed:Math.max(.7,Math.min(1.3,NEU.speed*(p.rate||1)))});
-    if(TTS.cur!==it)return;
-    await neuPlay(audio,it.vol!=null?it.vol:p.vol);
-  }catch(e){
-    NEU.state='error'; NEU.err=String((e&&e.message)||e); TTS.engine='sys'; ttsSave();
-    TTS.q.unshift(it);                                        // ten wpis przeczyta silnik systemowy
-  }finally{ if(TTS.cur===it){ TTS.busy=false; TTS.cur=null; ttsUI(); ttsPump(); } } }
-if('speechSynthesis' in window){ ttsLoad(); ttsRefresh();
-  try{ speechSynthesis.addEventListener('voiceschanged',ttsRefresh); }catch(e){ speechSynthesis.onvoiceschanged=ttsRefresh; } }
+const ERA='https://www.era.europa.eu/assets/driver-manual/content/';
+// dźwięki DMI z podręcznika ERA (CNT.DMI.AUD); bez internetu — dźwięki zastępcze
+const AUD={}; [['click','audio/click.wav'],['info','audio/S_info.mp3'],['s1','audio/S1_toofast.mp3'],['s2','audio/S2_warning.mp3']].forEach(([k,u])=>{ try{ const a=new Audio(ERA+u); a.preload='auto'; a.onerror=()=>{ a.bad=true; }; AUD[k]=a; }catch(e){} });
+const FBS={click:()=>tone(1400,.03,.03,'square'),info:()=>tone(880,.12,.05),s1:()=>tone(1000,.5,.07,'square'),s2:()=>{ for(let i=0;i<4;i++) tone(1600,.1,.07,'square',i*.2); }};
+function snd(k){ if(mute) return; const a=AUD[k]; if(!a||a.bad) return FBS[k](); try{ a.currentTime=0; const p=a.play(); if(p&&p.catch) p.catch(()=>FBS[k]()); }catch(e){ FBS[k](); } }
+let s2On=false, s2Fb=0; function s2(on){ if(mute) on=false; const a=AUD.s2; if(on===s2On){ if(on&&(!a||a.bad)&&performance.now()-s2Fb>800){ s2Fb=performance.now(); FBS.s2(); } return; } s2On=on;
+  if(a&&!a.bad){ a.loop=true; if(on){ a.currentTime=0; a.play().catch(()=>{}); } else a.pause(); } }
+const click=()=>snd('click');
+function speak(t){ if(!speech||!('speechSynthesis' in window))return; try{const u=new SpeechSynthesisUtterance(t);u.lang='pl-PL';u.rate=1.05;speechSynthesis.speak(u);}catch(e){} }
 
 /* ---------- tor ---------- */
 function sspMin(pos,L){ let m=999; const a=pos-L, P=prof(); for(let i=0;i<P.length;i++){ const s=P[i][0], e=i+1<P.length?P[i+1][0]:1e9; if(e>a&&s<=pos) m=Math.min(m,P[i][1]); } return m; }
 const aSB=()=>0.0075*S.train.bp+0.1;
-const moving=()=>S.cab&&S.boot===2&&['SR','FS','OS','SH','UN','SN'].includes(S.mode);
+const gradAt=x=>{ let g=0; for(const p of TRACK.grad) if(p[0]<=x) g=p[1]; return g; };
+const tcAt=x=>TRACK.tc.filter(c=>x>=c.s&&x<=(c.e||c.s+60));
+const availNow=()=>{ const g=SIGS.find(x=>x.s>S.pos+1&&x.a==='stop'); return g?g.s:TRACK.len; };
+function osZone(){ const lim=availNow(), i=SIGS.findIndex(x=>x.s>S.pos-5&&x.s<lim&&x.a==='sz'); if(i<0) return null; const g=SIGS[i]; return {s:g.s,e:(SIGS[i+1]||{s:TRACK.len}).s,g}; }
+const covOK=()=>NV.cov&&!(S.scen&&S.pos>96000+OFF&&S.pos<99000+OFF);
+const moving=()=>S.cab&&S.boot===2&&['SR','FS','OS','SH','UN','SN','IS'].includes(S.mode);
 
 function supervise(){
   const m=S.mode; let base=S.train.vmax; const T=[];
   if(!moving()) return {base:0,P:0,tsm:false,rsm:false,mrdt:null,T};
-  if(m==='SR') base=Math.min(base,S.override?NVV.ovr:NVV.sr);
+  if(m==='SR') base=Math.min(base,S.override?NVV.ovr:(S.srV||NVV.sr));
   else if(m==='SH') base=Math.min(base,NVV.sh);
   else if(m==='UN') base=Math.min(base,NVV.un);
-  else if(m==='SN'){}
+  else if(m==='SN'||m==='IS'){}
   else { base=Math.min(base,sspMin(S.pos,S.train.len)); if(m==='OS') base=Math.min(base,NVV.os);
     const lim=S.eoa==null?1e9:S.eoa;
     for(const [s,v] of prof()) if(s>S.pos&&s<lim&&v<base) T.push({s,v});
-    if(m==='FS'&&lim>TRACK.os[0]&&S.pos<TRACK.os[0]&&NVV.os<base) T.push({s:TRACK.os[0],v:NVV.os,os:1});
+    const z=osZone(); if(m==='FS'&&z&&z.s<lim&&S.pos<z.s&&NVV.os<base) T.push({s:z.s,v:NVV.os,os:1});
     if(S.eoa!=null) T.push({s:S.eoa,v:0,eoa:1});
   }
-  const a=aSB()*.5, b=base/3.6; let P=base, mrdt=null, tsm=false, rsm=false;
+  const a=aSB()*.5*(S.slip?.7:1), b=base/3.6; let P=base, mrdt=null, tsm=false, rsm=false;
   for(const t of T){ const d=t.s-S.pos, vt=t.v/3.6; t.d=d; t.vp=Math.sqrt(vt*vt+2*a*Math.max(0,d))*3.6;
     t.ind=(b*b-vt*vt)/(2*a)+b*10;
     if(d<=t.ind){ tsm=true; if(!mrdt||t.vp<mrdt.vp) mrdt=t; }
@@ -537,24 +408,84 @@ function supervise(){
 
 /* ---------- komunikaty i potwierdzenia ---------- */
 function clock(){ const s=Math.floor(36000+S.t), p=n=>String(n).padStart(2,'0'); return p(Math.floor(s/3600)%24)+':'+p(Math.floor(s/60)%60)+':'+p(s%60); }
-function msg(text,imp){ S.msgs.unshift({t:clock().slice(0,5),text,imp}); if(S.msgs.length>30)S.msgs.pop(); tone(880,.12,.05); drawMsgs(); }
+function msg(text,imp){ S.msgs.unshift({t:clock().slice(0,5),text,imp}); if(S.msgs.length>30)S.msgs.pop(); snd('info'); drawMsgs(); }
 function drawMsgs(){ el.E5.innerHTML=S.msgs.slice(0,5).map(m=>`<div class="${m.imp?'imp':''}"><b>${m.t}</b> ${m.text}</div>`).join(''); }
-const ACKTXT={SN:'Potwierdź tryb SN (SHP)',UN:'Potwierdź tryb UN (poziom 0)',LT:'Potwierdź zmianę poziomu na SHP',EB:'Hamowanie nagłe — potwierdź zwolnienie hamulca',BL:'Błąd balisy — potwierdź',SR:'Potwierdź tryb SR',OS:'Potwierdź tryb OS (jazda na widoczność)',TR:'Potwierdź awaryjne zatrzymanie',RS:'Potwierdź Radiostop'};
+const ACKTXT={L2:'Potwierdź zmianę poziomu na poziom 2',SN:'Potwierdź tryb STM Krajowy (SN)',UN:'Potwierdź tryb Linia Niewyposażona (UN)',LT:'Potwierdź zmianę poziomu na SHP',EB:'Hamowanie nagłe — potwierdź zwolnienie hamulca',BL:'Błąd balisy — potwierdź',SR:'Potwierdź tryb SR',OS:'Potwierdź tryb OS (jazda na widoczność)',TR:'Pociąg zatrzymany przez system — potwierdź TRIP',LV:'Potwierdź zmianę poziomu',RS:'Potwierdź Radiostop'};
 function reqAck(k){ if(S.ack===k)return; S.ack=k; S.ackT=performance.now(); msg(ACKTXT[k],true); tone(1200,.25,.07); }
-function doAck(){ const k=S.ack; if(!k)return; click(); S.ack=null;
-  if(k==='SR'){ S.mode='SR';S.started=true;S.srFrom=S.pos;S.eoa=null; msg('Tryb SR — odpowiedzialność personelu, V maks. 40 km/h'); }
-  if(k==='SN'){ S.mode='SN';S.started=true;S.eoa=null; msg('Tryb SN — jazda pod nadzorem SHP'); }
-  if(k==='UN'){ S.mode='UN';S.started=true;S.eoa=null; msg('Tryb UN — poziom 0, V maks. '+NVV.un+' km/h'); }
-  if(k==='LT'){ S.ackBrake=false; S.ltT=null; msg('Zmiana poziomu potwierdzona'); }
-  if(k==='OS'){ S.mode='OS';S.ackBrake=false;G.os=true; msg('Tryb OS — jazda na widoczność, V maks. '+NVV.os+' km/h'); }
-  if(k==='TR'){ S.mode='PT';S.ebi=false;S.started=false;S.eoa=null; msg('Tryb PT. Wybierz Główne → Start, aby kontynuować'); }
+let ackDown=0; const HOLD=1000; const holdOK=()=>performance.now()-ackDown>=HOLD;
+function doAck(){ const k=S.ack; if(!k)return; if(k==='SR'&&!holdOK()){ tone(300,.15,.05); if(performance.now()-(S.hintT||0)<4000) return; S.hintT=performance.now(); msg('Potwierdzenie SR: przytrzymaj symbol ok. 1 s'); return; } click(); S.ack=null;
+  if(k==='SR'&&!holdOK()){ S.ack='SR'; return; }
+  if(k==='SR'){ S.mode='SR';S.hookOn=false;S.started=true;S.srFrom=S.pos;S.eoa=null; msg('Wejście do trybu ODPOWIEDZIALNOŚĆ PERSONELU'); }
+  if(k==='SN'){ S.mode='SN';S.started=true;S.eoa=null; msg('Wejście do trybu STM KRAJOWY'); }
+  if(k==='UN'){ S.mode='UN';S.started=true;S.eoa=null; msg('Wejście do trybu LINIA NIEWYPOSAŻONA'); }
+  if(k==='L2'){ S.ackBrake=false; msg('Zmiana poziomu na poziom 2 potwierdzona'); }
+  if(k==='LV'){ S.ackBrake=false; if(S.lv) S.lv.acked=true; msg('Zmiana poziomu potwierdzona'); }
+  if(k==='OS'){ S.mode='OS';S.ackBrake=false;S.szBrake=false;S.osEnter=S.pos;if(S.eoa==null) S.eoa=availNow();if(S.l2os){ S.osToFS=S.pos+300; S.eoa=availNow(); S.l2os=false; S.started=true; } else G.os=true; msg('Wejście do trybu NA WIDOCZNOŚĆ'); }
+  if(k==='TR'){ S.mode='PT';S.ebi=false;S.started=false;S.eoa=null;S.ie2=false; msg('Wejście do trybu PO ZATRZYMANIU PRZEZ SYSTEM'); msg('Hamulec zwolniony. Zgłoś zatrzymanie dyżurnemu. Dalej: Menu → Start (SR) lub Manewrowanie'); sysLog('Ir-1a § 10 ust. 3: po zatrzymaniu przez system zgłoś dyżurnemu miejsce zatrzymania. Dalsza jazda dopiero po instrukcji europejskiej nr 2 (SR do wskazanego semafora albo SH, gdy pociąg kończy bieg).'); }
   if(k==='EB'){ S.ebi=false; msg('Hamulec zwolniony. Zgłoś zatrzymanie dyżurnemu, potem możesz kontynuować jazdę'); }
   if(k==='BL'){ S.balBrake=false; msg('Potwierdzono błąd balisy — jazda dozwolona'); }
   if(k==='RS'){ S.rs=false; msg('Radiostop skasowany — można kontynuować po wyjaśnieniu przyczyny'); }
 }
-function enterFS(){ S.mode='FS';S.eoa=EOAS[S.stage];S.started=true;G.fs=true; msg('Wjazd w FS — zezwolenie na jazdę '+(S.level===2?'z RBC':'z balisy')); }
-function trip(why){ S.mode='TR';S.ebi=true;S.sbi=false;S.ackBrake=false;S.ack=null; msg(why||'Nieuprawnione minięcie końca zezwolenia — TRIP',true); tone(600,.8,.1,'square'); }
-function clear3(){ if(S.stage!==2)return; S.stage=3; S.cleared=true; sysLog('Semafor wjazdowy Lipowa: podano sygnał zezwalający. ETCS otrzyma nowe zezwolenie z jazdą na widoczność (OS) od km 9,0.'); }
+function enterFS(){ if(S.ack==='OS'||S.ack==='SR') S.ack=null; S.l2os=false; S.mode='FS';S.eoa=availNow();S.osEnter=null;S.started=true;G.fs=true; msg('Wejście do trybu PEŁNY NADZÓR'); }
+function trip(why){ S.mode='TR';S.ebi=true;S.sbi=false;S.ackBrake=false;S.ack=null; msg(why||'Przekroczono EoA',true); tone(600,.8,.1,'square'); }
+
+
+/* ---------- stacje, sytuacje na trasie ---------- */
+const SCEN=[
+  {at:11000+OFF,f(){ const g=SIGS.find(x=>x.t==='sbl'&&x.s>14500+OFF); setAsp(g,'stop'); g.autoClear=30; g.clearTo='sz'; g.restore=true; g.auto2=true;
+    sysLog('SYTUACJA: semafor samoczynnej blokady '+g.n+' wskazuje „Stój” (zajęty odstęp). Zatrzymaj się przed nim. Po ok. 30 s postoju ETCS da zezwolenie na jazdę na widoczność — potwierdź OS i jedź do 40 km/h do następnego semafora.'); }},
+  {at:17000+OFF,f(){ const g=sigByName('Wjazd Gdańsk Główny'); setAsp(g,'sz'); g.restore=true; g.auto2=true;
+    sysLog('SYTUACJA: na semaforze wjazdowym Gdańsk Główny podano sygnał zastępczy Sz. Przed semaforem zwolnij do 40 km/h i potwierdź tryb OS.'); }},
+  {at:25000+OFF,f(){ S.tsr={s:36000+OFF,e:37500+OFF,v:70}; msg('Nowe ograniczenie: 70 km/h od km '+kmS(36000+OFF),true); sysLog('SYTUACJA: roboty torowe — tymczasowe ograniczenie 70 km/h na km '+kmS(36000+OFF)+'–'+kmS(37500+OFF)+'.'); }},
+  {at:57500+OFF,f(){ const g=SIGS.find(x=>x.s>S.pos+1300&&x.s<S.pos+2600&&x.a==='go'); if(!g) return; setAsp(g,'stop'); g.autoClear=25; g.auto2=true;
+    sysLog(S.level===2?'SYTUACJA: semafor '+g.n+' zmienił się na „Stój” — RBC skraca zezwolenie. Hamuj!':'SYTUACJA: semafor '+g.n+' zmienił się na „Stój” po minięciu ostatniej balisy — DMI tego NIE pokazuje! Obserwuj semafor (panel „Semafory przed pociągiem”) i hamuj sam.'); }},
+  {at:66500+OFF,f(){ const g=sigByName('Wjazd Malbork'); setAsp(g,'stop'); g.autoClear=40; g.auto2=true;
+    incoming('dr',`Pociąg ${S.trn||'na szlaku'}, tu dyżurny ruchu Malbork. Semafor wjazdowy wskazuje „Stój” — tor zajęty. Zatrzymaj się przed semaforem i czekaj na sygnał.`); }}];
+function l2Border(){ if(!L2B||!S.cab||S.boot!==2) return; const p0=S.rlPos==null?S.pos:S.rlPos; S.rlPos=S.pos; const cr=x=>p0<x&&S.pos>=x;
+  const out=S.level==='SHP'||S.level===0;
+  if(cr(L2B.ann)&&out){ S.ltAnn=2; msg('Zapowiedź zmiany poziomu: poziom 2'); const x=RBCS.find(y=>y[0]==='Gdynia'); S.lastRbc=[x[1],x[2]];
+    sysLog('Balisa zapowiedzi: obszar ETCS poziomu 2 za '+Math.round(L2B.bord-L2B.ann)+' m. Urządzenia przytorowe przekazały dane RBC Gdynia — ETCS sam nawiązuje sesję.');
+    if(covOK()){ S.rbc='connecting'; after(3,()=>{ if(S.rbc==='connecting'&&covOK()){ S.rbc='on'; S.rbcName='Gdynia'; msg('Sesja z RBC nawiązana'); } }); } else { S.rbc='wait'; msg('Błąd połączenia radiowego',true); } }
+  if(cr(L2B.ack)&&out&&S.ltAnn===2){ reqAck('L2'); S.ltAckT=S.t; }
+  if(cr(L2B.bord)&&out){ S.ltAnn=null; S.level=2;
+    if(S.rbc==='on'){ msg('Poziom 2'); enterFS(); } else { trip('Brak zezwolenia na jazdę przy zmianie poziomu'); sysLog('Na granicy nie było sesji z RBC ani zezwolenia na jazdę — pociąg zatrzymany przez system. Zgłoś się do dyżurnego, zaloguj do RBC (Menu → Dane RBC) i postępuj jak po TRIP.'); } } }
+
+/* ===== zmiana poziomu zapowiedziana przez urządzenia przytorowe (ERA LTR.TRS) ===== */
+const lvNeedAck=(from,to)=>from==='SHP'||to==='SHP'||from===0||to===0;
+function annLevel(to,dist){ if(!S.cab||S.boot!==2||!S.started||S.level==null){ sysLog('Zapowiedź zmiany poziomu działa podczas jazdy (po START).'); return false; }
+  if(S.level===to){ sysLog('Pociąg już jest w tym poziomie ('+lvName(to)+').'); return false; }
+  const s=Math.round(S.pos+(dist||1200)); S.lv={to,from:S.level,s,ackAt:s-500,ack:lvNeedAck(S.level,to),req:false,acked:false}; S.lvT=null;
+  msg('Zapowiedź zmiany poziomu: '+lvName(to)+', km '+kmS(s));
+  if(to===2){ const area=rbcArea(), x=RBCS.find(y=>y[0]===area); if(x){ S.lastRbc=[x[1],x[2]]; }
+    if(S.rbc!=='on'){ if(covOK()&&x){ S.rbc='connecting'; after(3,()=>{ if(S.rbc==='connecting'&&covOK()){ S.rbc='on'; S.rbcName=x[0]; msg('Sesja z RBC nawiązana'); } }); } else { S.rbc='wait'; msg('Błąd połączenia radiowego',true); } } }
+  sysLog({1:'Balisa zapowiedzi: za '+Math.round(s-S.pos)+' m zaczyna się obszar poziomu 1. Zezwolenie na jazdę da balisa semafora — jeśli przy granicy semafor wskazuje „Stój”, ETCS wdroży TRIP.',
+    2:'Balisa zapowiedzi: za '+Math.round(s-S.pos)+' m zaczyna się poziom 2. ETCS sam nawiązuje sesję z RBC (dane RBC z balisy). Bez sesji i zezwolenia na granicy — TRIP.',
+    0:'Zapowiedź wyjazdu do obszaru bez ETCS (poziom 0). Potwierdź zmianę poziomu, gdy pojawi się żądanie. Dalej jedziesz w trybie UN według semaforów, do 160 km/h.',
+    SHP:'Zapowiedź wyjazdu z obszaru ETCS na linię z SHP. Potwierdź zmianę poziomu, gdy pojawi się żądanie (5 s po granicy bez potwierdzenia = hamowanie służbowe). Dalej tryb SN, czuwanie SHP przed semaforami.'}[to]+(S.lv.ack?'':' Ta zmiana nie wymaga potwierdzenia.'));
+  return true; }
+function lvRun(){ const L=S.lv; if(!L) return;
+  if(L.ack&&!L.req&&S.pos>=L.ackAt){ L.req=true; ACKTXT.LV='Potwierdź zmianę poziomu: '+lvName(L.to); reqAck('LV'); }
+  if(S.pos<L.s) return;
+  S.lv=null; if(L.ack&&!L.acked) S.lvT=S.t;
+  const to=L.to, was=S.level, run=['FS','OS','SR'].includes(S.mode);
+  if(to==='SHP'||to===0){ if(was===2){ S.rbc='off'; msg('Sesja z RBC zakończona'); } S.level=to; S.mode=to==='SHP'?'SN':'UN'; S.eoa=null; S.override=false; S.started=true; msg(to==='SHP'?'Poziom SHP — tryb SN':'Poziom 0 — tryb UN'); tone(900,.2,.06); return; }
+  if(to===1){ if(was===2){ S.rbc='off'; S.level=1; msg('Poziom 1'); if(S.mode==='FS'||S.mode==='OS') S.eoa=availNow(); return; }
+    S.level=1; if(availNow()>S.pos+50){ msg('Poziom 1'); enterFS(); } else { trip('Brak zezwolenia na jazdę przy zmianie poziomu'); sysLog('Na granicy poziomu 1 semafor wskazywał „Stój” — brak zezwolenia na jazdę, TRIP.'); } return; }
+  if(to===2){ S.level=2; if(S.rbc==='on'){ msg('Poziom 2'); if(S.mode==='SR'&&was===1){ S.l2os=true; reqAck('OS'); } else enterFS(); }
+    else { trip('Brak zezwolenia na jazdę przy zmianie poziomu'); sysLog('Na granicy poziomu 2 nie było sesji z RBC — TRIP. Zgłoś się do dyżurnego, zaloguj do RBC (Menu → Dane RBC).'); } } }
+function routeLogic(dt){ l2Border(); if(S.lx&&S.pos>S.lx.s+100){ S.lx=null; msg('Koniec ograniczenia przy przejeździe'); }
+  if(S.scen&&S.cab) for(const e of SCEN) if(!e.done&&S.pos>=e.at){ e.done=true; e.f(); }
+  const c=covOK(); if(S.lastCov!==undefined&&c!==S.lastCov) covChanged(c); S.lastCov=c;
+  const st=STATIONS.find(x=>S.pos>=x.plat[0]&&S.pos<=x.plat[1]);
+  STATIONS.forEach(x=>{ if(x!==st) x.wait=0; });
+  if(st&&S.v<.05&&S.cab){ st.wait=(st.wait||0)+dt;
+    if(!S.stopped.has(st.n)&&(S.started||st.first)){ S.stopped.add(st.n); if(!st.first){ msg('Zatrzymanie przy peronie — '+st.n); if(st.end){ S.arrived=true; sysLog('Pociąg przyjechał do stacji Iława Główna. Zgłoś przyjazd dyżurnemu i zamknij kabinę.'); } } }
+ }
+  const sE=STATIONS.find(x=>x.ex&&S.pos>=x.plat[0]&&S.pos<x.ex.s);
+  if(sE&&S.v<.05&&S.cab){ sE.ewait=(sE.ewait||0)+dt; const ex=sE.ex; if(ex.a==='stop'&&ex.auto&&!sE.end&&sE.ewait>15&&(!sE.first||(S.dataValid&&S.trn))) setAsp(ex,'go','Dyżurny ruchu '+sE.n+' podał sygnał zezwalający na semaforze wyjazdowym.'); } else STATIONS.forEach(x=>{ if(x!==sE) x.ewait=0; });
+  const g=SIGS.find(x=>x.s>S.pos&&x.a==='stop');
+  if(g&&g.autoClear&&S.v<.05&&g.s-S.pos<800){ g.w=(g.w||0)+dt; if(g.w>g.autoClear){ const to=g.clearTo||'go'; g.autoClear=0; g.w=0; setAsp(g,to,to==='sz'?'Semafor '+g.n+': zezwolenie na jazdę na widoczność (OS). Potwierdź tryb OS.':'Dyżurny ruchu podał sygnał zezwalający na semaforze '+g.n+'.'); } }
+}
 
 /* ---------- krok symulacji ---------- */
 let lastWarn=0;
@@ -562,48 +493,70 @@ function step(dt){
   S.t+=dt; for(let i=Q.length-1;i>=0;i--) if(Q[i].t<=S.t){ const f=Q[i].fn; Q.splice(i,1); f(); }
   const run=moving(), kmh=S.v*3.6, p0=S.lastPos==null?S.pos:S.lastPos; S.lastPos=S.pos;
   if(S.shp){ const d=(performance.now()-S.shp)/1000; if(d>2.5&&performance.now()-lastWarn>400){ lastWarn=performance.now(); tone(520,.3,.09,'sawtooth'); } if(d>5){ S.shp=null; S.caNext=null; ebTrig((S.shpWhy||'SHP')+': brak potwierdzenia czujności'); } }
-  if(S.ack==='LT'&&S.ltT&&performance.now()-S.ltT>5000&&!S.ackBrake){ S.ackBrake=true; msg('Brak potwierdzenia zmiany poziomu — hamowanie służbowe',true); }
+  if(S.ack==='OS'&&S.l2os&&performance.now()-S.ackT>5000&&S.v>.1&&!S.ackBrake){ S.ackBrake=true; msg('Brak potwierdzenia trybu OS — hamowanie służbowe',true); }
+  if(S.ack!=='OS'&&S.l2os===false&&S.ackBrake&&!S.szBrake) S.ackBrake=false;
+  if(S.ack==='L2'&&S.t-(S.ltAckT||S.t)>5&&!S.ackBrake){ S.ackBrake=true; msg('Brak potwierdzenia zmiany poziomu — hamowanie służbowe',true); }
+  if(S.ack==='LV'&&S.lvT!=null&&S.t-S.lvT>5&&!S.ackBrake){ S.ackBrake=true; msg('Brak potwierdzenia zmiany poziomu — hamowanie służbowe',true); }
   if(run){
-    if(S.mode==='SN') for(const m of [2800,6300,9700]) if(p0<m&&S.pos>=m){ S.shp=performance.now(); S.shpWhy='SHP'; tone(700,.2,.08); }
-    if(S.lt){ if(!S.lt.req&&S.pos>=S.lt.s-400){ S.lt.req=true; reqAck('LT'); }
-      if(S.pos>=S.lt.s){ S.lt=null; S.level='SHP'; S.rbc='off'; S.mode='SN'; S.eoa=null; S.started=true; msg('Poziom SHP — tryb SN'); tone(900,.2,.06); if(S.ack==='LT') S.ltT=performance.now(); } }
-    if(S.stage===1&&S.pos>=1800) S.stage=2;
-    const avail=EOAS[S.stage];
-    if((S.mode==='FS'||S.mode==='OS')&&avail>(S.eoa||0)){ S.eoa=avail; msg('Przedłużono zezwolenie na jazdę do km '+(avail/1000).toFixed(1).replace('.',',')); }
-    if(S.mode==='SR'&&S.started&&!S.override&&avail>S.pos+50&&(S.level===2?S.rbc==='on':S.pos>=S.srFrom+250)) enterFS();
+    if(S.mode==='SN') for(const m of TRACK.sig.map(x=>x-200)) if(p0<m&&S.pos>=m){ S.shp=performance.now(); S.shpWhy='SHP'; tone(700,.2,.08); }
+    lvRun();
+    const avail=availNow();
+    if(S.mode==='SH'&&p0<TRACK.shb&&S.pos>=TRACK.shb){ trip('Przejechano granicę obszaru manewrowego'); }
+    const sx=SIGS.find(g=>p0<g.s&&S.pos>=g.s), bgX=sx?sx.s:null; if(sx) S.posKnown=true;
+    if(sx){
+      if(sx.a==='stop'&&!S.override&&['FS','OS','SR'].includes(S.mode)&&(S.level===1||S.level===2)) trip(S.mode==='SR'?'Przejechano semafor wskazujący STÓJ':'Przekroczono EoA');
+      else if(sx.a==='stop'&&(S.mode==='SN'||S.mode==='UN')){ sysLog('Minięto semafor '+sx.n+' wskazujący „Stój”! W tym poziomie ETCS nie nadzoruje semaforów — odpowiada maszynista.'); incoming('dr','Uwaga! Pociąg minął semafor '+sx.n+' wskazujący „Stój”. Natychmiast zatrzymaj pociąg!'); }
+      if(sx.a==='sz'&&S.mode==='FS'){ S.ackBrake=true; S.szBrake=true; msg('Brak potwierdzenia trybu OS — hamowanie służbowe',true); }
+      if(sx.restore){ const g=sx; g.restore=false; after(8,()=>{ if(g.a!=='stop'||g.auto2) setAsp(g,'go'); g.auto2=false; }); }
+    }
+    if(S.mode==='FS'||S.mode==='OS'){
+      if(S.level===2&&S.rbc==='on'){ if(avail!==S.eoa){ msg(avail<S.eoa?'Skrócenie zezwolenia na jazdę':'Przedłużono zezwolenie na jazdę do km '+kmS(avail),avail<S.eoa); S.eoa=avail; } }
+      else if(S.level===1&&((sx&&sx.a!=='stop')||(S.v<.5&&S.eoa!=null&&S.eoa-S.pos<700))&&avail!==S.eoa&&(sx||avail>S.eoa)){ msg('Zezwolenie na jazdę z balisy do km '+kmS(avail)); S.eoa=avail; }
+    }
+    const z=osZone();
+    if(S.mode==='FS'&&z&&S.pos>=z.s-400&&S.pos<z.s&&kmh<=NVV.os+1) reqAck('OS');
+    if(S.mode==='OS'&&!S.osToFS&&sx&&sx.a==='go'&&S.osEnter!=null&&sx.s>S.osEnter+5) enterFS();
+    if(S.mode==='SR'&&S.started&&sx&&!S.override&&(S.level===1||S.level===2)){
+      if(sx.a==='go'&&avail>sx.s+50){ if(S.level===1) enterFS(); else if(S.rbc==='on'){ S.l2os=true; reqAck('OS'); } }
+      else if(sx.a==='sz') reqAck('OS'); }
     if(S.override&&(S.t-S.ovT>NVV.tOvr||S.pos-S.srFrom>NVV.dOvr||(S.ovEoa!=null&&S.pos>S.ovEoa+20))){ S.override=false; msg('Funkcja „Pomiń” zakończona'); }
-    if(S.mode==='SR'&&!S.override&&(S.level===1||S.level===2)&&p0<avail&&S.pos>=avail) trip('Rozkaz zatrzymania w trybie SR — minięto semafor „Stój”');
-    if((S.mode==='SN'||S.mode==='UN')&&S.stage===2&&p0<6500&&S.pos>=6500){ sysLog('Minięto semafor wskazujący „Stój”! W tym poziomie ETCS nie nadzoruje semaforów — odpowiada maszynista.'); incoming('dr','Uwaga! Pociąg minął semafor wskazujący „Stój”. Natychmiast zatrzymaj pociąg!'); }
-    if(S.mode==='FS'&&S.stage===3&&S.pos>=TRACK.os[0]-400&&S.pos<TRACK.os[1]&&kmh<=NVV.os+1) reqAck('OS');
-    if(S.mode==='FS'&&S.pos>=TRACK.os[0]&&S.pos<TRACK.os[1]) S.ackBrake=true;
-    if(S.stage===2&&S.pos>=4800&&!S.warned){ S.warned=true; incoming('dr',`Pociąg ${S.trn||'na szlaku'}, tu dyżurny ruchu Lipowa. Semafor wjazdowy wskazuje „Stój”. Zatrzymaj pociąg przed semaforem i zgłoś zatrzymanie.`); }
-    if(S.stage===2&&S.v<.1&&S.pos>5800){ G.stopEoa=true; S.holdT+=dt; if(S.holdT>45) clear3(); }
+    if(S.osToFS&&S.mode==='OS'&&S.pos>=S.osToFS){ S.osToFS=null; enterFS(); }
+    { const g=SIGS.find(x=>x.s>S.pos&&x.a==='stop'); if(g&&S.v<.05&&g.s-S.pos<10&&g.warn10!==true){ g.warn10=true; sysLog('Ir-1a § 5 ust. 7: czoło pociągu zatrzymuj co najmniej 10 m przed semaforem wskazującym „Stój”.'); } }
     if((S.mode==='FS'||S.mode==='OS')&&S.eoa!=null&&S.pos>S.eoa) trip();
-    if(!S.arrived&&S.v<.05&&S.pos>=TRACK.plat[0]&&S.pos<=TRACK.plat[1]){ S.arrived=true; msg('Zatrzymanie przy peronie — Lipowa'); sysLog('Pociąg zatrzymany przy peronie stacji Lipowa. Zgłoś przyjazd dyżurnemu i zamknij kabinę.'); }
   }
+  routeLogic(dt);
+  if(S.level===2&&S.rbc==='on'){ const a=rbcArea(); if(S.rbcName&&a!==S.rbcName){ const x=RBCS.find(y=>y[0]===a); S.rbcName=a; S.lastRbc=[x[1],x[2]]; msg('Przekazanie do RBC '+a); } }
   const sup=S.sup=supervise();
-  if(run){ const m=margins(sup.P);
+  if(S.mode==='IS'){ S.sbi=false; S.ebi=false; }
+  if(S.mode==='SF') S.ebi=true;
+  else if(S.mode==='IS'||S.mode==='SN'){ S.sbi=false; s2(false); S.ovs=false; S.indS=false; } // SHP i izolacja: ETCS nie nadzoruje prędkości
+  else if(run){ const m=margins(sup.P);
     if(sup.rsm){ if(kmh>sup.P+1) ebTrig('przekroczono prędkość zwolnienia'); S.sbi=false; }
     else if((sup.tsm)&&!NV.sbTsm){ if(kmh>sup.P+m.ebi) ebTrig('nie wyhamowano do prędkości docelowej'); S.sbi=false; }
     else { if(kmh>sup.P+m.ebi) ebTrig('przekroczono prędkość dozwoloną'); if(!S.ebi&&kmh>sup.P+m.sbi){ if(!S.sbi) msg('Hamowanie służbowe ETCS — przekroczenie prędkości',true); S.sbi=true; } else if(kmh<=sup.P) S.sbi=false; }
-    if(kmh>sup.P+m.w&&performance.now()-lastWarn>650){ lastWarn=performance.now(); tone(1000,.25,.07,'square'); }
-    if(S.commBrake&&S.v<.05){ S.commBrake=false; after(5,()=>{ if(S.rbc==='lost'){ S.rbc='on'; msg('Połączenie z RBC przywrócone'); } }); }
+    const ovs=kmh>sup.P+.5; if(ovs&&!S.ovs) snd('s1'); S.ovs=ovs; s2(kmh>sup.P+m.w&&!S.ebi);
+    const ind=!!(sup.tsm||sup.rsm); if(ind&&!S.indS&&kmh>1) snd('info'); S.indS=ind;
+    if(S.commBrake&&S.v<.05){ S.commBrake=false; if(!covOK()){ sysLog('Pociąg zatrzymany bez łączności z RBC (Ir-1b § 18). Zgłoś miejsce zatrzymania dyżurnemu; po instrukcji nr 7 wybierz Menu → Start i jedź w SR. Po odzyskaniu zasięgu ETCS zaproponuje OS.'); } after(5,()=>{ if(S.rbc==='lost'&&covOK()){ S.rbc='on'; msg('Połączenie z RBC przywrócone'); sysLog('Komunikat zniknął i wróciło zezwolenie na jazdę — dalsza jazda po ustnej zgodzie dyżurnego ruchu (Ir-1b § 18 ust. 2).'); } }); }
     if(S.balBrake&&S.v<.05) reqAck('BL'); }
-  else { S.sbi=false; if(S.v>.3&&S.cab) ebTrig('nadzór postoju: pojazd się toczy'); else if(S.v>.3) S.ebi=true; }
-  if(S.ebi&&S.mode!=='TR'){ if(NV.relStand&&S.cab&&S.boot===2){ if(S.v<.05) reqAck('EB'); } else if(S.v<.05||(run&&kmh<=sup.P)) S.ebi=false; }
+  else { S.sbi=false; s2(false); S.ovs=false; if(S.mode==='PT'&&(S.dir||1)<0&&S.v>.05&&S.cab){ ebTrig('przekroczono dystans jazdy wstecz w trybie PT'); sysLog('PLK: dopuszczalny dystans jazdy wstecz w trybie PT (D_NVPOTRP) = 0 m. Cofanie po TRIP tylko w trybie SH (manewry), na polecenie dyżurnego.'); } else if(S.v>.3&&S.cab) ebTrig('nadzór postoju: pojazd się toczy'); else if(S.v>.3) S.ebi=true; }
+  if(S.ebi&&S.mode!=='TR'&&S.mode!=='SF'){ if(NV.relStand&&S.cab&&S.boot===2){ if(S.v<.05) reqAck('EB'); } else if(S.v<.05||(run&&kmh<=sup.P)) S.ebi=false; }
   if(S.mode==='TR'&&S.v<.05) reqAck('TR');
+  if((S.dir||1)<0&&S.cab&&S.boot===2&&!S.ebi){ const lim={PT:0,FS:2,OS:2,SR:2,UN:2,SN:2,LS:2}[S.mode];
+    if(lim!=null&&(S.rev||0)>lim+.3){ ebTrig(S.mode==='PT'?'przekroczono dystans jazdy wstecz w trybie PT':'ochrona przed jazdą wstecz'); sysLog(S.mode==='PT'?'PLK: dopuszczalny dystans jazdy wstecz w trybie PT (D_NVPOTRP) = 0 m. Cofanie po TRIP tylko w trybie SH (manewry), na polecenie dyżurnego.':'Ochrona przed jazdą wstecz: ETCS dopuszcza 2 m ruchu przeciwnie do kierunku jazdy (D_NVROLL, PLK). Do cofania użyj trybu SH (manewry).'); } }
+  if(S.v<.05) S.rev=0;
   if(S.rs&&S.v<.05) reqAck('RS');
   const asb=aSB(), tr=Math.max(0,S.lever)/100, br=Math.max(0,-S.lever)/100;
   const eb=S.ebi||S.eb||S.rs, sb=S.sbi||S.ackBrake||S.commBrake||S.balBrake;
   let bDem=br*asb; if(sb) bDem=Math.max(bDem,asb); if(eb) bDem=Math.max(bDem,Math.min(1.2,asb*1.1));
   S.bAct=(S.bAct||0)+(bDem-(S.bAct||0))*Math.min(1,dt/(bDem>(S.bAct||0)?(eb?.9:1.3):1.8));   // narastanie i luzowanie hamulca EP
   if(eb) S.ebLock=true; else if(S.ebLock&&S.v<.05&&S.lever<=0){ if(S.refT==null) S.refT=S.t; if(S.t-S.refT>4){ S.ebLock=false; S.refT=null; } } else S.refT=null;
-  const tDem=(run&&bDem===0&&!S.ebLock&&S.bAct<.05)?tr:0;
+  const neu=tcAt(S.pos).some(c=>c.t==='neu');
+  const tDem=(run&&bDem===0&&!S.ebLock&&S.bAct<.05&&!neu)?tr:0;
   S.tAct=(S.tAct||0)+(tDem-(S.tAct||0))*Math.min(1,dt/.8);
   const n=S.train.n||1, m=S.train.mass*1000;
   S.F=S.tAct*Math.min(n*178000,n*2.0e6/Math.max(S.v,1));   // stała siła do ok. 40 km/h, dalej ograniczenie mocą
-  let a=S.F/m-S.bAct; if(S.v>0) a-=.008+.00012*S.v+.0000105*S.v*S.v;
-  S.v=Math.max(0,S.v+a*dt); S.pos+=S.v*dt; if(S.pos>=TRACK.len){S.pos=TRACK.len;S.v=0;}
+  let a=S.F/m-S.bAct; if(S.v>0) a-=.008+.00012*S.v+.0000105*S.v*S.v; a-=9.81*gradAt(S.pos)/1000*(S.v>0||a>0?1:0);
+  S.v=Math.max(0,S.v+a*dt); const dir=S.dir||1; S.pos+=dir*S.v*dt; if(dir<0&&S.v>0) S.rev=(S.rev||0)+S.v*dt; if(S.pos<0){ S.pos=0; S.v=0; } if(S.pos>=TRACK.len){S.pos=TRACK.len;S.v=0;}
   // czuwak aktywny (CA)
   const now=performance.now();
   if(S.cab&&S.boot===2&&NV.ca&&S.v*3.6>10){ if(S.caNext==null) S.caNext=now+60000; if(!S.shp&&now>S.caNext){ S.shp=now; S.shpWhy='Czuwak aktywny'; tone(700,.2,.08); } } else S.caNext=null;
@@ -616,67 +569,128 @@ function arc(r,v1,v2){ if(!(v2>v1+.2))return ''; const p=pt(r,v1),q=pt(r,v2); re
 (function ticks(){ let h=''; for(let v=0;v<=200;v+=10){ const big=v%20===0, p=pt(125,v), q=pt(big?100:110,v); h+=`<line x1="${p[0]}" y1="${p[1]}" x2="${q[0]}" y2="${q[1]}" stroke="#fff" stroke-width="${big?2:1}"/>`;
   if(big){ const t=pt(84,v); h+=`<text x="${t[0]}" y="${t[1]+5}" fill="#fff" font-size="14" text-anchor="middle">${v}</text>`; } } $('#ticks').innerHTML=h; })();
 const barY=d=>d<=100?d/100*33:33+Math.min(1,Math.log10(d/100))*153;
-const planY=d=>283-(d<=100?Math.max(0,d)/100*25:25+Math.min(1,Math.log10(d/100)/Math.log10(40))*243);
-let frameN=0;
+const planY=d=>{ const R=S.pr||4000; return 283-(d<=R/8?Math.max(0,d)/(R/8)*40:40+Math.min(1,Math.log10(d/(R/8))/Math.log10(8))*228); };
+const SVGI=(b,c)=>`<svg viewBox="0 0 32 32" width="30" height="30" fill="none" stroke="${c||'#c3c3c3'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${b}</svg>`;
+const MODEI={
+  IS:c=>`<svg viewBox="0 0 32 32" width="30" height="30"><text x="16" y="22" text-anchor="middle" font-size="15" font-weight="700" fill="#c3c3c3" font-family="Verdana">IS</text></svg>`,
+  FS:c=>SVGI('<rect x="4" y="7" width="24" height="18" rx="5"/><ellipse cx="16" cy="16" rx="7" ry="5"/>',c),
+  OS:c=>SVGI('<path d="M5 16L27 6V26Z"/>',c),
+  SR:c=>SVGI('<rect x="5" y="5" width="22" height="22"/><path d="M5 5L27 27M27 5L5 27"/><rect x="11" y="11" width="10" height="10"/>',c),
+  SH:c=>SVGI('<path d="M4 21V14H8V10H17V14H28V21Z"/><circle cx="9" cy="23.5" r="2"/><circle cx="23" cy="23.5" r="2"/><path d="M11 10V8H14V10"/>',c),
+  UN:c=>SVGI('<path d="M6 26L20 4M12 28L26 6M8 22L14 24M10 18L16 20M13 14L19 16M15 10L21 12M18 6L24 8"/>',c),
+  SB:c=>SVGI('<path d="M16 5V15"/><path d="M10 8.5A9 9 0 1 0 22 8.5"/>',c),
+  TR:()=>`<svg viewBox="0 0 32 32" width="30" height="30"><rect x="10" y="3" width="12" height="26" rx="2" fill="#555"/><circle cx="16" cy="9" r="3" fill="#bf0002"/><circle cx="16" cy="16" r="3" fill="#bf0002"/><circle cx="16" cy="23" r="3" fill="#2a2f38"/></svg>`,
+  PT:()=>`<svg viewBox="0 0 32 32" width="30" height="30"><rect x="10" y="3" width="12" height="26" rx="2" fill="#555"/><circle cx="16" cy="9" r="3" fill="#c3c3c3"/><circle cx="16" cy="16" r="3" fill="#c3c3c3"/><circle cx="16" cy="23" r="3" fill="#2a2f38"/></svg>`,
+  SN:c=>SVGI('<path d="M11.5 5H20.5L27 11.5V20.5L20.5 27H11.5L5 20.5V11.5Z"/>',c),
+  NL:c=>SVGI('<path d="M5 8C14 8 18 24 27 24M5 24C14 24 18 8 27 8"/><path d="M23 20L27 24L23 28M23 4L27 8L23 12"/>',c),
+  SF:()=>`<svg viewBox="0 0 32 32" width="30" height="30"><path d="M16 4L29 27H3Z" fill="#bf0002"/><path d="M16 12V19M16 22.5V23" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>`,
+  OV:c=>SVGI('<path d="M4 22H28"/><path d="M9 26L16 9L23 26"/><path d="M12 13L16 6L20 13"/>',c)};
+let ERAFAIL=false; window.eraFail=()=>{ ERAFAIL=true; };
+const eraImg=(code,h,fb)=>ERAFAIL?fb:`<img class="era" src="${ERA}img/content/${code}.png" style="max-height:${h}px;max-width:100%" onerror="eraFail()" alt="${code}">`;
+const MO={SH:'MO01',OV:'MO03',TR:'MO04',PT:'MO06',OS:'MO07',SR:'MO09',FS:'MO11',NL:'MO12',SB:'MO13',RV:'MO14',UN:'MO16',SF:'MO18',SN:'MO19',LS:'MO21'};
+const MOACK={SH:'MO02',TR:'MO05',OS:'MO08',SR:'MO10',RV:'MO15',UN:'MO17',SN:'MO20',LS:'MO22'};
+const modeIconSvg=(m,c)=>MODEI[m]?MODEI[m](c):`<b style="font-size:12px">${m}</b>`;
+const modeIcon=(m,c)=>MO[m]?eraImg(MO[m],36,modeIconSvg(m,c)):modeIconSvg(m,c);
+const ackIcon=m=>MOACK[m]?eraImg(MOACK[m],36,modeIconSvg(m,'#dfdf00')+'<span>'+m+'</span>'):null;
+function levelIcon(l){ if(l==null) return ''; if(l!=='SHP'){ const fb=levelIconSvg(l); return eraImg({0:'LE01',1:'LE03',2:'LE04'}[l],36,fb); } return levelIconSvg(l); }
+function levelIconSvg(l){ if(l==null) return '';
+  if(l==='SHP') return '<b style="font-size:13px;letter-spacing:1px">SHP</b>';
+  const bar=l===2?'<rect x="5" y="22" width="30" height="5" fill="#c3c3c3"/>':l===0?'<rect x="6" y="21" width="28" height="6" fill="none" stroke="#c3c3c3" stroke-width="1.5"/>':l===1?'<path d="M5 24.5H35" stroke="#c3c3c3" stroke-width="5" stroke-dasharray="5 4"/>':'';
+  return `<svg viewBox="0 0 40 32" width="44" height="34"><text x="20" y="17" text-anchor="middle" font-size="15" font-weight="700" fill="#c3c3c3" font-family="Verdana,Arial">${l}</text>${bar}</svg>`; }
+function radioIcon(st){ return eraImg(st==='on'?'ST03':'ST04',30,radioIconSvg(st)); }
+function radioIconSvg(st){ // ST03 połączenie aktywne, ST04 połączenie utracone / nieudane
+  const c='#c3c3c3', gap=st==='on'?'':'<path d="M13 16H22" stroke="#bf0002" stroke-width="3.5"/><path d="M14 10L21 22" stroke="#bf0002" stroke-width="2.5"/>';
+  return `<svg viewBox="0 0 34 32" width="40" height="34" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round"><path d="M6 6Q14 16 6 26"/><path d="M8 16H27"/><path d="M27 7V25"/>${gap}</svg>`; }
+const brakeIcon=c=>eraImg('ST01',30,brakeIconSvg());
+const brakeIconSvg=c=>`<svg viewBox="0 0 40 28" width="44" height="30"><rect x="1" y="1" width="38" height="26" fill="#bf0002"/><path d="M9 6Q4 14 9 22M31 6Q36 14 31 22" stroke="#fff" stroke-width="2.5" fill="none"/><circle cx="20" cy="14" r="7" stroke="#fff" stroke-width="2.5" fill="none"/></svg>`;
+const TCI={nogsm:'<path d="M10 18V8M6 4Q10 1 14 4M4 2Q10 -3 16 2" fill="none" stroke="#c3c3c3" stroke-width="1.6"/><path d="M3 17L17 3" stroke="#c3c3c3" stroke-width="1.6"/>',neu:'<path d="M3 4V14H17V4" fill="none" stroke="#c3c3c3" stroke-width="2" stroke-dasharray="3 2"/>',horn:'<path d="M2 5L9 10L2 15ZM18 5L11 10L18 15Z" fill="#dfdf00"/>',nostop:'<path d="M3 15L17 3M3 3L17 15" stroke="#dfdf00" stroke-width="2"/><path d="M3 17H17" stroke="#dfdf00" stroke-width="1.5"/>'};
+const TCB3={neu:'TC07',nostop:'TC10',nogsm:'TC12',horn:'TC35'}, TCPL={neu:'TC06',nostop:'TC11',nogsm:'TC12',horn:'TC35'};
+const tcSvg=(t,x,y)=>ERAFAIL||!TCPL[t]?`<svg x="${x}" y="${y}" width="20" height="20" viewBox="0 0 20 20">${TCI[t]}</svg>`:`<image href="${ERA}img/content/${TCPL[t]}.png" x="${x-4}" y="${y-4}" width="28" height="27"/>`;
+const plSym=(dn,x,y)=>ERAFAIL?'':`<image href="${ERA}img/content/${dn?'PL22':'PL21'}.png" x="${x}" y="${y}" width="18" height="18"/>`;
+const LTA={0:['LE06','LE07'],SHP:['LE08b','LE09'],1:['LE010','LE011'],2:['LE012','LE013']};
+function ltIcon(l,c){ const k=LTA[l]; if(k&&!(l==='SHP')) return eraImg(k[c==='#dfdf00'?1:0],36,ltIconSvg(l,c)); return ltIconSvg(l,c); }
+function ltIconSvg(l,c){ return `<svg viewBox="0 0 54 32" width="58" height="34"><path d="M4 13H20M15 8L20 13L15 18" stroke="${c}" stroke-width="2.4" fill="none"/><text x="36" y="17" text-anchor="middle" font-size="15" font-weight="700" fill="${c}" font-family="Verdana">${l}</text><rect x="24" y="22" width="26" height="5" fill="${c}"/></svg>`; }
+let frameN=0; const setH=(e,h)=>{ if(e._h!==h){ e._h=h; e.innerHTML=h; } };
 function render(){
   const on=S.cab&&S.boot===2; el.dOff.style.display=on?'none':'flex'; el.dOff.textContent=S.cab?'Uruchamianie ETCS — autotest…':'Kabina nieaktywna';
   $('#bCab').textContent=S.cab?'Zamknij kabinę':'Aktywuj kabinę';
   drawDesk(); if(!on)return;
   const sup=S.sup, v=S.v*3.6, run=moving(); frameN++;
-  let col='#c3c3c3';
-  if(S.ebi||S.sbi||S.rs||S.ackBrake) col='#bf0002'; else if(run&&v>sup.P+.5) col='#ea9100'; else if(sup.rsm||(sup.tsm&&sup.mrdt&&v>sup.mrdt.v+.5)) col='#dfdf00';
+  let col='#ffffff';
+  if(S.ebi||S.sbi||S.rs||S.ackBrake) col='#bf0002'; else if(run&&S.mode!=='SN'&&S.mode!=='IS'&&v>sup.P+.5) col='#ea9100'; else if(sup.rsm||(sup.tsm&&sup.mrdt&&v>sup.mrdt.v+.5)) col='#dfdf00';
   el.needle.setAttribute('transform',`translate(140,150) rotate(${ang(v).toFixed(2)})`); el.needle.setAttribute('fill',col); el.hub.setAttribute('fill',col);
   el.spd.textContent=Math.round(v); el.spd.setAttribute('fill',col==='#bf0002'?'#fff':'#000');
   if(run){ const tv=sup.tsm&&sup.mrdt?Math.min(sup.mrdt.v,sup.P):sup.P;
-    el.cg1.setAttribute('d',arc(132,0,tv)); el.cg2.setAttribute('d',sup.tsm?arc(132,tv,sup.P):'');
-    el.cg3.setAttribute('d',v>sup.P?arc(137,sup.P,Math.min(v,sup.P+ (S.sbi||S.ebi?60:10))):''); el.cg3.setAttribute('stroke',S.sbi||S.ebi?'#bf0002':'#ea9100');
-    const p=pt(116,sup.P),q=pt(138,sup.P); el.hook.setAttribute('x1',p[0]);el.hook.setAttribute('y1',p[1]);el.hook.setAttribute('x2',q[0]);el.hook.setAttribute('y2',q[1]); el.hook.style.display='';
+    const tg=sup.tsm&&sup.mrdt?(sup.mrdt.eoa?Math.min(NVV.rel,sup.P):Math.min(sup.mrdt.v,sup.P)):sup.P; const isIS=S.mode==='IS'||S.mode==='SN';
+    const isSR=S.mode==='SR'; el.cg1.setAttribute('d',isIS||isSR?'':arc(132,0,tg)); el.cg2.setAttribute('d',!isIS&&!isSR&&(sup.tsm||sup.rsm)?arc(132,tg,sup.P):'');
+    el.cg3.setAttribute('d',!isIS&&v>sup.P?arc(132,sup.P,v):''); el.cg3.setAttribute('stroke',S.sbi||S.ebi?'#bf0002':'#ea9100');
+    const p=pt(116,sup.P),q=pt(138,sup.P); el.hook.setAttribute('x1',p[0]);el.hook.setAttribute('y1',p[1]);el.hook.setAttribute('x2',q[0]);el.hook.setAttribute('y2',q[1]); el.hook.style.display=isIS||(isSR&&!S.hookOn)?'none':''; el.hook.setAttribute('stroke-width',isSR?10:6);
   } else { el.cg1.setAttribute('d','');el.cg2.setAttribute('d','');el.cg3.setAttribute('d','');el.hook.style.display='none'; }
   if(frameN%6)return;
   // obszar A
   const tgt=(sup.tsm||sup.rsm)&&sup.mrdt?sup.mrdt:null;
-  el.A1.firstChild.style.background=tgt?(S.sbi||S.ebi?'#bf0002':v>sup.P?'#ea9100':v>tgt.v?'#dfdf00':'#c3c3c3'):'transparent';
+  { const sq=el.A1.firstChild; if(tgt){ const vt=tgt.eoa?0:tgt.v/3.6, vv=S.v, need=tgt.d>1?Math.max(0,(vv*vv-vt*vt)/(2*tgt.d))/aSB():1, sz=Math.round(8+Math.min(1,need*1.6)*38);
+    sq.style.width=sq.style.height=sz+'px'; sq.style.background=S.sbi||S.ebi?'#bf0002':v>sup.P?'#ea9100':'#dfdf00'; } else { sq.style.background='transparent'; } }
   el.A2.textContent=tgt?Math.max(0,Math.round(tgt.d/10)*10):'';
   let h=''; if(tgt){ for(const d of [0,100,200,300,400,500,600,700,800,900,1000]){ const y=188-barY(d); h+=`<line x1="${d%500===0?12:16}" x2="25" y1="${y}" y2="${y}" stroke="#c3c3c3"/>`; }
     const bh=barY(Math.max(0,Math.min(1000,tgt.d))); h+=`<rect x="29" y="${188-bh}" width="10" height="${bh}" fill="#c3c3c3"/>`; } el.A3.innerHTML=h;
   el.B6.textContent=sup.mrdt&&sup.mrdt.eoa&&(sup.tsm||sup.rsm)?String(NVV.rel):'';
-  const mc=S.mode==='TR'?'r':(S.mode==='SR'||S.mode==='OS'||S.mode==='SH'||S.mode==='PT')?'y':'';
-  el.B7.innerHTML=`<div class="ico ${mc}">${S.mode}</div>`;
-  el.C8.innerHTML=S.level!=null?`<div class="ico">${S.level==='SHP'?'SHP':'L'+S.level}</div>`:'';
-  el.C9.innerHTML=(S.sbi||S.ebi||S.rs||S.ackBrake||S.commBrake||S.balBrake)?'<div class="ico r">HAM</div>':'';
-  el.C7.innerHTML=S.override?'<div class="ico y">OVR</div>':'';
-  el.C1.innerHTML=S.ack?`<div class="ack">${({RS:'RADIOSTOP',EB:'HAMULEC',BL:'BALISA'})[S.ack]||S.ack} — potw.</div>`:'';
-  el.C2.textContent=sup.rsm?'RSM':sup.tsm?'TSM':run?'CSM':'';
-  el.E1.innerHTML=S.level===2?`<div class="ico ${S.rbc==='on'?'':'y'}">${S.rbc==='on'?'⇄':S.rbc==='connecting'?'…':'✕'}</div>RBC`:S.shp?'<div class="ico y">SHP</div>':'';
+  const mcol=S.mode==='SR'||S.mode==='OS'||S.mode==='SH'||S.mode==='UN'?'#c3c3c3':'#c3c3c3';
+  setH(el.B7,`<div class="mi">${modeIcon(S.mode,mcol)}</div>`);
+  setH(el.C8,levelIcon(S.level));
+  setH(el.A4,S.slip?eraImg('ST02',28,'<b style="color:#dfdf00">≈</b>'):'');
+  el.C9h=S.ack==='EB'?`<div class="ackb">${brakeIcon()}</div>`:(S.sbi||S.ebi||S.rs||S.ackBrake||S.commBrake||S.balBrake)?brakeIcon():''; setH(el.C9,el.C9h);
+  setH(el.B3,tcAt(S.pos).map(c=>TCB3[c.t]&&!ERAFAIL?eraImg(TCB3[c.t],30,''):`<svg width="22" height="22" viewBox="0 0 20 20">${TCI[c.t]}</svg>`).join('')+(S.lx&&S.lx.s-S.pos<1500&&S.lx.s+40>S.pos?eraImg('LX01',30,'<b style="color:#dfdf00;font-size:11px">LX</b>'):''));
+  el.C7h=S.override?`<div class="mi">${modeIcon('OV','#dfdf00')}</div>`:''; setH(el.C7,el.C7h);
+  el.C1h=S.ack==='LV'&&S.lv?`<div class="ack">${ltIcon(S.lv.to,'#dfdf00')}</div>`:S.ack==='L2'?`<div class="ack">${ltIcon(2,'#dfdf00')}</div>`:S.ack&&S.ack!=='EB'?`<div class="ack">${MODEI[S.ack]?(ackIcon(S.ack)||modeIconSvg(S.ack,'#dfdf00')+'<span>'+S.ack+'</span>'):({RS:'RADIOSTOP',EB:'HAMULEC',BL:'BALISA',LT:'POZIOM SHP'})[S.ack]||S.ack}</div>`:S.ltAnn?`<div style="display:flex">${ltIcon(S.ltAnn,'#c3c3c3')}</div>`:S.lv?`<div style="display:flex">${ltIcon(S.lv.to,'#c3c3c3')}</div>`:'';
+  setH(el.C1,el.C1h);
+  el.C2.textContent=S.mode==='SN'||S.mode==='IS'?'':sup.rsm?'RSM':sup.tsm?'TSM':run?'CSM':'';
+  setH(el.E1,S.level===2?(S.rbc==='connecting'?eraImg('ST05',30,'<b style="font-size:20px">⌛</b>'):(S.rbc==='on'||S.rbc==='lost'||S.rbc==='fail'||S.rbc==='wait')?radioIcon(S.rbc==='on'?'on':'lost'):''):S.shp?'<div class="ico y">SHP</div>':'');
   el.gPos.textContent='km '+(S.pos/1000).toFixed(3).replace('.',','); el.gTrn.textContent='Pociąg: '+(S.trn||'—'); el.gDrv.textContent='Maszynista: '+(S.driverId||'—');
   el.gLen.textContent=S.dataValid?`${S.train.len} m · ${S.train.bp}% · ${S.train.vmax} km/h`:'Dane pociągu: brak'; el.gClk.textContent=clock();
   // planowanie
-  h=''; for(const d of [0,100,250,500,1000,2000,4000]){ const y=planY(d); h+=`<line x1="40" x2="240" y1="${y}" y2="${y}" stroke="#555"/><text x="36" y="${y+4}" fill="#c3c3c3" font-size="10" text-anchor="end">${d}</text>`; }
+  const R=S.pr||4000; h=''; for(const d of [0,R/8,R/4,R/2,R]){ const y=planY(d); h+=`<line x1="40" x2="240" y1="${y}" y2="${y}" stroke="#555"/><text x="36" y="${y+4}" fill="#c3c3c3" font-size="10" text-anchor="end">${d}</text>`; }
+  h+=`<rect data-pz="s" x="0" y="0" width="100" height="300" fill="transparent" style="cursor:pointer"/><g class="pz"><rect data-pz="-" x="0" y="0" width="24" height="18" fill="transparent"/><text x="12" y="13" fill="#c3c3c3" font-size="16" text-anchor="middle" pointer-events="none">−</text><rect data-pz="+" x="0" y="282" width="24" height="18" fill="transparent"/><text x="12" y="296" fill="#c3c3c3" font-size="16" text-anchor="middle" pointer-events="none">+</text></g>`;
   if(S.mode==='FS'||S.mode==='OS'){
-    const lim=S.eoa==null?S.pos+4000:S.eoa; let pts=[[0,Math.min(sspMin(S.pos,S.train.len),S.mode==='OS'?NVV.os:999)]];
-    for(const [s,vv] of prof()) if(s>S.pos&&s<lim) pts.push([s-S.pos,vv]);
-    if(S.mode==='FS'&&lim>TRACK.os[0]&&S.pos<TRACK.os[0]) pts=pts.filter(p=>p[0]<TRACK.os[0]-S.pos).concat([[TRACK.os[0]-S.pos,NVV.os]]);
-    const end=Math.min(4000,lim-S.pos);
-    pts.forEach((p,i)=>{ if(p[0]>4000)return; const d2=Math.min(end,i+1<pts.length?pts[i+1][0]:end), w=14+p[1]/160*80, y1=planY(d2), y0=planY(p[0]);
-      h+=`<rect x="140" y="${y1}" width="${w}" height="${Math.max(0,y0-y1)}" fill="#0a2a4d" stroke="#1a4a80"/>`;
-      if(i>0){ const dn=p[1]<pts[i-1][1]; h+=`<text x="128" y="${y0+4}" fill="${dn?'#dfdf00':'#c3c3c3'}" font-size="12" text-anchor="end">${dn?'▼':'▲'} ${p[1]}</text>`; } });
-    if(S.eoa!=null&&S.eoa-S.pos<=4000){ const y=planY(S.eoa-S.pos); h+=`<line x1="100" x2="236" y1="${y}" y2="${y}" stroke="#dfdf00" stroke-width="2"/><text x="96" y="${y+4}" fill="#dfdf00" font-size="12" text-anchor="end">■ 0</text>`; }
-    for(const t of sup.T) if(t===sup.mrdt||(!sup.tsm&&t.ind<4000+0)){ const di=t.d-t.ind; if(di>0&&di<4000){ const y=planY(di); h+=`<line x1="140" x2="236" y1="${y}" y2="${y}" stroke="#dfdf00" stroke-dasharray="4 3"/>`; } }
-  } else h+=`<text x="140" y="150" fill="#555" font-size="12" text-anchor="middle">Planowanie dostępne w FS</text>`;
+    // pochylenie toru
+    for(let i=0;i<TRACK.grad.length;i++){ const g=TRACK.grad[i], a=Math.max(0,g[0]-S.pos), b=Math.min(R,(i+1<TRACK.grad.length?TRACK.grad[i+1][0]:TRACK.len)-S.pos); if(b<=0||a>=R)continue;
+      const y1=planY(b), y0=planY(a); h+=`<rect x="104" y="${y1}" width="12" height="${Math.max(0,y0-y1)}" fill="${g[1]<0?'#555':'#c3c3c3'}" stroke="#031122"/>`;
+      if(y0-y1>22) h+=`<text x="110" y="${(y0+y1)/2+4}" fill="${g[1]<0?'#fff':'#000'}" font-size="10" text-anchor="middle">${Math.abs(g[1])}</text><text x="110" y="${y1+10}" fill="${g[1]<0?'#fff':'#000'}" font-size="10" text-anchor="middle">${g[1]<0?'−':'+'}</text>`; }
+    // warunki toru
+    for(const c of TRACK.tc){ const d=c.s-S.pos; if(d>0&&d<R) h+=tcSvg(c.t,62,planY(d)-10); }
+    const lim=S.eoa==null?S.pos+R:S.eoa; let pts=[[0,Math.min(sspMin(S.pos,S.train.len),S.mode==='OS'?NVV.os:999)]];
+    for(const [s2,vv] of prof()) if(s2>S.pos&&s2<lim) pts.push([s2-S.pos,vv]);
+    { const z=osZone(); if(S.mode==='FS'&&z&&z.s<lim&&S.pos<z.s) pts=pts.filter(p=>p[0]<z.s-S.pos).concat([[z.s-S.pos,NVV.os]]); }
+    const end=Math.min(R,lim-S.pos), vmx=Math.max(...pts.map(p=>p[1]),1);
+    pts.forEach((p,i)=>{ if(p[0]>R)return; const d2=Math.min(end,i+1<pts.length?pts[i+1][0]:end), f=p[1]>=vmx?1:p[1]>=vmx*.6?.75:.5, w=96*f, y1=planY(d2), y0=planY(p[0]);
+      h+=`<rect x="140" y="${y1}" width="${w}" height="${Math.max(0,y0-y1)}" fill="#4b6e9a" fill-opacity=".55"/>`;
+      if(i>0){ const dn=p[1]<pts[i-1][1]; h+=ERAFAIL?`<text x="136" y="${y0+4}" fill="${dn?'#dfdf00':'#c3c3c3'}" font-size="12" text-anchor="end">${dn?'▼':'▲'}${p[1]}</text>`:plSym(dn,120,y0-9)+`<text x="129" y="${y0-11}" fill="#c3c3c3" font-size="10" text-anchor="middle">${p[1]}</text>`; } });
+    if(S.eoa!=null&&S.eoa-S.pos<=R){ const y=planY(S.eoa-S.pos); h+=`<line x1="140" x2="236" y1="${y}" y2="${y}" stroke="#dfdf00" stroke-width="2"/>`+(ERAFAIL?`<text x="136" y="${y+4}" fill="#dfdf00" font-size="12" text-anchor="end">▼0</text>`:plSym(true,120,y-9)+`<text x="129" y="${y-11}" fill="#c3c3c3" font-size="10" text-anchor="middle">0</text>`); }
+    if(sup.mrdt){ const di=sup.mrdt.d-sup.mrdt.ind; if(di>0&&di<R){ const y=planY(di); h+=`<line x1="140" x2="236" y1="${y}" y2="${y}" stroke="#dfdf00" stroke-dasharray="4 3"/>`; } }
+  }
+  if(S.taf) h+=ERAFAIL?`<g data-taf="1"><rect data-taf="1" x="70" y="110" width="120" height="70" fill="#031122" stroke="#c3c3c3"/><text data-taf="1" x="130" y="150" fill="#c3c3c3" font-size="12" text-anchor="middle">Tor wolny</text></g>`:`<image data-taf="1" href="${ERA}img/content/DR02.png" x="72" y="110" width="117" height="73"/>`;
   el.D.innerHTML=h;
 }
+['#B','#B6','#B7'].forEach(id=>$(id).addEventListener('click',()=>{ if(S.mode!=='SR'||!S.cab||S.boot!==2)return; S.hookOn=!S.hookOn; click(); }));
+el.D.addEventListener('click',e=>{ if(e.target.dataset&&e.target.dataset.taf&&S.taf){ click(); S.taf=false; msg('Potwierdzono: tor przed pociągiem wolny'); after(2,()=>{ if((S.mode==='SR'||S.mode==='OS')&&S.level===2&&S.rbc==='on'){ enterFS(); } }); return; } const z=e.target.dataset&&e.target.dataset.pz; if(!z)return; const r=el.D.getBoundingClientRect(), up=(e.clientY-r.top)/r.height<.5; // ERA: górna połowa skali poszerza, dolna skraca
+  const L=[1000,2000,4000,8000,16000,32000]; let i=L.indexOf(S.pr||4000); if(i<0) i=2; i=Math.max(0,Math.min(L.length-1,i+(up?1:-1))); S.pr=L[i]; click(); });
 
 /* ---------- pulpit: pasek trasy ---------- */
 (function strip(){ const pc=x=>(x/TRACK.len*100)+'%'; let h='<div class="rail"></div>';
-  h+=`<div class="mk" style="left:5%">Dobra Wola</div><div class="mk" style="left:${pc(9750)}">Lipowa</div>`;
-  TRACK.ssp.forEach(([s,v])=>{ if(s>0) h+=`<div class="mk" style="left:${pc(s)};top:37px">${v}</div>`; });
-  h+=`<div class="plat" style="left:${pc(TRACK.plat[0])};width:${pc(TRACK.plat[1]-TRACK.plat[0])}"></div><div class="os" style="left:${pc(TRACK.os[0])};width:${pc(TRACK.os[1]-TRACK.os[0])}"></div>`;
-  TRACK.sig.forEach((s,i)=>h+=`<div class="sig" id="sg${i}" style="left:${pc(s)}"></div>`); h+='<div id="trn"></div>'; $('#strip').innerHTML=h; })();
+  STATIONS.forEach((st,i)=>{ h+=`<div class="mk" style="left:${pc(st.c)};top:${i%2?38:2}px">${st.n.replace('Gdańsk ','Gd. ').replace(' Główna','').replace(' Główny',' Gł.')}</div><div class="plat" style="left:${pc(st.plat[0])};width:${pc(260)};min-width:3px"></div>`; });
+  if(L2B) h+=`<div class="mk" style="left:${pc(L2B.bord)};top:38px;color:#4b8bff">▮ETCS L2</div>`;
+  SIGS.forEach((g,i)=>h+=`<div class="sig" id="sg${i}" style="left:${pc(g.s)}"></div>`); h+='<div id="trn"></div>'; $('#strip').innerHTML=h; })();
+const ASP={go:['Zezwalający','#4cc38a'],stop:['Stój','#e5484d'],sz:['Zastępczy / OS','#e9e9e9']};
+function drawSigPanel(){ const L=SIGS.filter(g=>g.s>S.pos-20).slice(0,6);
+  $('#sigp').innerHTML='<div class="sph">Semafory przed pociągiem — kliknij, aby zmienić sygnał</div>'+L.map(g=>`<div class="spr"><span class="spn"><i style="background:${ASP[g.a][1]}"></i>${g.n}</span><span class="spd">${g.s-S.pos<0?'mijany':Math.round(g.s-S.pos)+' m'}</span>`+
+    ['go','stop','sz'].map(a=>`<button class="spb ${g.a===a?'on':''}" data-sg="${SIGS.indexOf(g)}" data-a="${a}">${ASP[a][0]}</button>`).join('')+'</div>').join(''); }
+$('#sigp').addEventListener('click',e=>{ const b=e.target.closest('[data-sg]'); if(!b)return; const g=SIGS[+b.dataset.sg]; g.a=b.dataset.a; g.auto=false; g.autoClear=0; click(); drawSigPanel(); });
+setInterval(drawSigPanel,500);
 function drawDesk(){
   const t=$('#trn'); t.style.left=((S.pos-S.train.len)/TRACK.len*100)+'%'; t.style.width=(S.train.len/TRACK.len*100)+'%';
-  [S.stage>=2,S.stage>=3,false].forEach((g,i)=>$('#sg'+i).style.background=g?'#4cc38a':'#e5484d');
-  const nx=TRACK.sig.find(s=>s>S.pos); const brk=S.ebi||S.eb||S.rs?'hamowanie NAGŁE':S.sbi||S.ackBrake||S.commBrake||S.balBrake?'hamowanie służbowe ETCS':S.ebLock&&S.v<.05?(S.lever>0?'rozruch zablokowany po hamowaniu nagłym — ustaw nastawnik na 0':'napełnianie przewodu głównego'):S.lever<0?'hamowanie '+(-S.lever)+'% ('+(S.bAct||0).toFixed(1).replace('.',',')+' m/s²)':S.lever>0?'rozruch '+S.lever+'% ('+Math.round((S.F||0)/1000)+' kN)':'wybieg';
-  $('#tele').textContent=`km ${(S.pos/1000).toFixed(2).replace('.',',')} · ${Math.round(S.v*3.6)} km/h · ${brk}`+(nx?` · semafor za ${Math.round(nx-S.pos)} m`:'');
+  SIGS.forEach((g,i)=>{ const e=$('#sg'+i); if(e) e.style.background=ASP[g.a][1]; });
+  const nxg=SIGS.find(g=>g.s>S.pos), nx=nxg&&nxg.s; const brk=S.ebi||S.eb||S.rs?'hamowanie NAGŁE':S.sbi||S.ackBrake||S.commBrake||S.balBrake?'hamowanie służbowe ETCS':S.ebLock&&S.v<.05?(S.lever>0?'rozruch zablokowany po hamowaniu nagłym — ustaw nastawnik na 0':'napełnianie przewodu głównego'):S.lever<0?'hamowanie '+(-S.lever)+'% ('+(S.bAct||0).toFixed(1).replace('.',',')+' m/s²)':S.lever>0?'rozruch '+S.lever+'% ('+Math.round((S.F||0)/1000)+' kN)':'wybieg';
+  $('#tele').textContent=`km ${(S.pos/1000).toFixed(2).replace('.',',')} · ${Math.round(S.v*3.6)} km/h · ${brk}`+(nxg?` · ${nxg.n} za ${Math.round(nx-S.pos)} m (${ASP[nxg.a][0]})`:'');
   $('#levVal').textContent=S.lever<0?'Hamowanie '+(-S.lever)+'%':S.lever>0?'Rozruch '+S.lever+'%':'Wybieg';
   $('#bEB').classList.toggle('on',S.eb); $('#bShp').classList.toggle('lit',!!S.shp);
 }
@@ -685,6 +699,9 @@ function drawDesk(){
 let W=null;
 function openWin(w){ W=w; if(w.type==='entry'){ w.sel=0; w.fresh=true; } drawWin(); }
 function closeWin(){ W=null; drawWin(); }
+let winPress=0, winHold=null; el.win.addEventListener('pointerdown',e=>{ winPress=performance.now(); clearTimeout(winHold); const b=e.target.closest('[data-i]'); if(!b||b.disabled||!W||W.type!=='menu') return; const it=W.items[+b.dataset.i]; if(it&&it.hold){ e.preventDefault(); b.classList.add('holding'); winHold=setTimeout(()=>{ winHold=null; b.classList.remove('holding'); click(); it.fn(); },it.hold); } });
+['pointerup','pointerleave','pointercancel'].forEach(t=>el.win.addEventListener(t,()=>{ if(winHold){ clearTimeout(winHold); winHold=null; el.win.querySelectorAll('.holding').forEach(x=>x.classList.remove('holding')); } }));
+el.win.addEventListener('contextmenu',e=>e.preventDefault());
 function drawWin(){ const e=el.win; if(!W){ e.style.display='none'; e.innerHTML=''; return; } e.style.display='block'; let h=`<div class="wt">${W.title}</div>`;
   if(W.type==='menu') h+='<div class="wm">'+W.items.map((it,i)=>it?`<button data-i="${i}" ${it.en===false?'disabled':''}>${it.label}</button>`:'<span></span>').join('')+'</div>';
   if(W.type==='entry'){ h+=W.fields.map((f,i)=>`<div class="fld ${i===W.sel?'sel':''} ${f.ok?'ok':''} ${f.err?'err':''} ${f.label?'':'nol'}" data-fl="${i}">${f.label?`<span>${f.label}</span>`:''}<b>${f.val}${f.unit&&f.val!==''?' '+f.unit:''}</b></div>`).join('');
@@ -692,12 +709,12 @@ function drawWin(){ const e=el.win; if(!W){ e.style.display='none'; e.innerHTML=
     const f=W.fields[W.sel];
     if(f.type==='list') h+='<div class="ops">'+f.opts.map(o=>`<button data-op="${o}">${o}</button>`).join('')+'</div>';
     else h+='<div class="kp">'+[['1','. _'],['2','abc'],['3','def'],['4','ghi'],['5','jkl'],['6','mno'],['7','pqrs'],['8','tuv'],['9','wxyz'],['Del',''],['0',''],[W.alpha?'1/A/a':'','']].map(k=>k[0]?`<button data-k="${k[0]}">${k[0]}${W.alpha&&k[1]?' <small>'+k[1]+'</small>':''}</button>`:'<span></span>').join('')+'</div>';
-    h+=`<div class="wb"><button data-x="1">✕</button>${(W.extra||[]).map((b,i)=>`<button data-e="${i}">${b.label}</button>`).join('')}${W.fields.length>1?`<button data-yes="1" ${W.fields.every(f=>f.ok)?'':'disabled'}>Wprow. danych</button>`:''}</div>`; }
+    h+=`<div class="wb"><button data-x="1">✕</button>${(W.extra||[]).map((b,i)=>`<button data-e="${i}">${b.label}</button>`).join('')}${W.fields.length>1?`<button data-yes="1" ${(W.anyVal?W.fields.every(f=>String(f.val)!==''):W.fields.every(f=>f.ok))?'':'disabled'}>${W.yesLabel||'Wprow. danych'}</button>`:''}</div>`+(W.yesQ?`<div class="ln" style="position:absolute;left:0;right:0;bottom:58px;text-align:right">${W.yesQ}</div>`:''); }
   if(W.type==='info'||W.type==='menu') { if(W.type==='info') h+=W.lines.map(l=>`<div class="ln">${l}</div>`).join(''); h+=`<div class="wb"><button data-x="1">✕</button></div>`; }
   e.innerHTML=h; }
 el.win.addEventListener('click',ev=>{ const b=ev.target.closest('button,.fld'); if(!b||b.disabled||!W)return; click(); const d=b.dataset;
   if(d.x){ (W.onX||closeWin)(); return; }
-  if(d.i!=null){ W.items[+d.i].fn(); return; }
+  if(d.i!=null){ const it=W.items[+d.i]; if(it.hold){ if(performance.now()-(winPress||0)<it.hold) tone(300,.15,.05); return; } it.fn(); return; }
   if(d.e!=null){ W.extra[+d.e].fn(); return; }
   if(d.yes){ const w=W; w.onDone(w); return; }
   const next=()=>{ const n=W.fields.findIndex(x=>!x.ok); if(n>=0){W.sel=n;W.fresh=true;} };
@@ -713,46 +730,90 @@ el.win.addEventListener('click',ev=>{ const b=ev.target.closest('button,.fld'); 
   else { if(W.fresh){ f.val=''; W.fresh=false; } if(String(f.val).length<(f.maxlen||6)) f.val+=d.k; f.ok=false; f.err=false; }
   drawWin(); });
 
-function mainMenu(){ const st=S.v<.1, sb=S.mode==='SB'||S.mode==='PT', base=S.driverId&&S.level!=null;
-  openWin({type:'menu',title:'Główne',items:[
-    {label:'Start',en:!!(st&&sb&&base&&S.dataValid&&S.trn&&!S.ack),fn:start},
+function mainMenu(){ if(S.rbc==='connecting'||S.maReq){ openWin({type:'menu',title:'Menu ⌛',items:['Start','Numer maszynisty','Dane pociągu',null,'Poziom','Numer pociągu','Manewrowanie','Dane RBC'].map(x=>x&&{label:x,en:false,fn(){}})}); return; }
+  const st=S.v<.1, sb=S.mode==='SB'||S.mode==='PT', base=S.driverId&&S.level!=null;
+  openWin({type:'menu',title:'Menu',items:[
+    {label:'Start',en:!!(((st&&(sb||(S.level===2&&S.rbc==='lost'&&(S.mode==='FS'||S.mode==='OS'))))||(S.level===2&&S.mode==='SR'&&S.v*3.6<=40))&&base&&S.dataValid&&S.trn&&!S.ack&&!(S.mode==='PT'&&S.level===2&&S.rbc!=='on')),fn:start},
     {label:'Numer maszynisty',en:st,fn:winDriver},
     {label:'Dane pociągu',en:!!(st&&sb&&base),fn:winData}, null,
     {label:'Poziom',en:st&&!!S.driverId,fn:winLevel},
     {label:'Numer pociągu',en:!!S.driverId,fn:winTrn},
-    {label:S.mode==='SH'?'Koniec Jazdy Manewrowej':'Jazda Manewrowa',en:!!(st&&base&&(S.mode==='SB'||S.mode==='SH')),fn:shunt},
-    {label:'Jazda bez prowadzenia',en:false,fn(){}},
-    {label:'Dane radiowe',en:S.level===2&&st,fn:winRadio}]}); }
-function winDriver(){ openWin({type:'entry',title:'Nr maszynisty',alpha:true,extra:[{label:'POC',fn:winTrn},{label:'🔧',fn(){ fkey('set'); }}],fields:[{label:'',val:S.driverId,type:'num',maxlen:8}],onDone(w){ S.driverId=w.fields[0].val; S.level!=null?mainMenu():winLevel(); }}); }
+    {label:S.mode==='SH'?'Koniec jazdy manewrowej':'Manewrowanie',hold:1000,en:!!(st&&base&&(S.mode==='SB'||S.mode==='SH'||S.mode==='PT')),fn:shunt},
+    {label:'Dane RBC',en:S.level===2&&st,fn:winRadio}]}); }
+function winDriver(){ openWin({type:'entry',title:'Nr maszynisty',alpha:true,extra:[{label:'TRN',fn:winTrn},{label:'🔧',fn(){ fkey('set'); }}],fields:[{label:'',val:S.driverId,type:'num',maxlen:8}],onDone(w){ S.driverId=w.fields[0].val; S.level!=null?mainMenu():winLevel(); }}); }
 const lvName=l=>l==null?'—':l==='SHP'?'SHP':'Poziom '+l;
 function winLevel(){ openWin({type:'entry',title:'Poziom',fields:[{label:'',val:S.level==null?'':lvName(S.level),type:'list',opts:['Poziom 1','Poziom 2','Poziom 0','SHP']}],onDone(w){ const v=w.fields[0].val; setLevel(v==='SHP'?'SHP':+v.slice(-1)); }}); }
-function setLevel(l){ const m=S.mode; S.level=l; S.rbc='off'; S.shp=null; S.lt=null; msg('Wybrano: '+lvName(l));
+function setLevel(l){ const m=S.mode; S.level=l; S.rbc='off'; S.shp=null; S.lv=null; msg('Wybrano: '+lvName(l));
   if((m==='SN'||m==='UN')&&(l===1||l===2)){ trip('Brak zezwolenia na jazdę przy zmianie poziomu'); S.started=false; }
-  else if(l==='SHP'&&['SR','FS','OS','UN'].includes(m)){ S.mode='SN'; S.eoa=null; S.started=true; S.ack=null; msg('Tryb SN — jazda pod nadzorem SHP'); }
-  else if(l===0&&['SR','FS','OS','SN'].includes(m)){ S.mode='UN'; S.eoa=null; S.started=true; S.ack=null; msg('Tryb UN — poziom 0'); }
-  l===2?winRadio():mainMenu(); }
-function winRadio(){ openWin({type:'entry',title:'Dane radiowe',pre:['ID sieci radiowej: <b>GSM-R PLK</b>','ID RBC: <b>3141</b>','Numer RBC: <b>48 730 000 141</b>','Nawiązać sesję z RBC?'],fields:[{label:'',val:'',type:'list',opts:['Nie','Tak']}],onX:mainMenu,
-  onDone(w){ if(w.fields[0].val==='Tak'){ S.rbc='connecting'; msg('Nawiązywanie połączenia z RBC…'); after(3,()=>{ if(S.level===2&&S.cab){ S.rbc='on'; msg('Połączenie z RBC nawiązane'); } }); } mainMenu(); }}); }
+  else if(l==='SHP'&&['SR','FS','OS','UN'].includes(m)){ S.mode='SN'; S.eoa=null; S.started=true; S.ack=null; msg('STM Krajowy (SN)'); }
+  else if(l===0&&['SR','FS','OS','SN'].includes(m)){ S.mode='UN'; S.eoa=null; S.started=true; S.ack=null; msg('Linia Niewyposażona (UN)'); }
+  if(l!==2) return mainMenu(); if(!S.dataValid) return winData(); if(!S.trn) return winTrn(); rbcCheck(); }
+const RBCS=[['Bolesławiec','5586945','0048738599601'],['Wrocław Muchobór','5586946','0048738599602'],['Opole Zachodnie','5586947','0048738599604'],['Nasielsk','5586948','0048738599101'],['Ciechanów','5586949','0048738599501'],['Działdowo','5586950','0048738599502'],['Iława','5586951','0048738599503'],['Malbork','5586952','0048738599504'],['Tczew','5586953','0048738599505'],['Gdańsk','5586954','0048738599506'],['Gdynia','5586955','0048738599507']];
+function winRadio(){ if(S.netBusy){ openWin({type:'menu',title:'Dane radiowe ⌛',items:['Kontakt z ostatnim RBC','Użyj krótkiego numeru','Wprowadź dane RBC','ID sieci radiowej'].map(x=>({label:x,en:false,fn(){}}))}); return; }
+  openWin({type:'menu',title:'Dane radiowe',onX:mainMenu,items:[
+  {label:'Kontakt z ostatnim RBC',en:!!S.lastRbc&&!!S.net,fn(){ rbcConnect(S.lastRbc[0],S.lastRbc[1]); }},
+  {label:'Użyj krótkiego numeru',en:!!S.net,fn(){ rbcConnect('short','short'); }},
+  {label:'Wprowadź dane RBC',en:true,fn:winRbcData},
+  {label:'ID sieci radiowej',hold:2000,fn:winNet}]}); }
+function winNet(){ S.rbc='off'; S.netBusy=true; winRadio(); after(2,()=>{ S.netBusy=false; openWin({type:'entry',title:'ID sieci radiowej',fields:[{label:'',val:'',type:'list',opts:['GSM-R PL']}],onX:winRadio,
+  onDone(w){ S.netBusy=true; winRadio(); after(3,()=>{ S.netBusy=false; S.net=w.fields[0].val; msg('Zarejestrowano w sieci '+S.net); if(W&&W.title.startsWith('Dane radiowe')) winRadio(); }); }}); }); }
+function winRbcData(){ const l=S.lastRbc||['','']; openWin({type:'entry',title:'Dane RBC',anyVal:true,yesLabel:'Tak',yesQ:'Wprowadzenie danych RBC kompletne?',onX:winRadio,fields:[
+  {label:'ID RBC',val:l[0],type:'num',maxlen:8},{label:'Numer telefonu RBC',val:l[1],type:'num',maxlen:14}],onDone(w){ rbcConnect(w.fields[0].val,w.fields[1].val); }}); }
+function rbcUp(x){ S.rbc='on'; S.rbcName=x[0]; S.lastRbc=[x[1],x[2]]; S.commBrake=false; msg('Sesja z RBC nawiązana');
+  if(S.mode==='SR'&&S.started&&!S.override&&availNow()>S.pos+50){ S.l2os=true; reqAck('OS'); } }
+function rbcRetry(){ if(S.level!==2||!S.cab||!S.lastRbc||!(S.rbc==='wait'||S.rbc==='lost'||S.rbc==='fail'))return; const id=S.lastRbc[0],ph=S.lastRbc[1];
+  S.rbc='connecting'; msg('Zasięg GSM-R — nawiązywanie sesji z RBC'); after(3,()=>{ if(!covOK()||S.level!==2){ S.rbc='wait'; return; } const x=RBCS.find(y=>y[1]===id&&y[2]===ph&&y[0]===rbcArea()); if(x) rbcUp(x); else { S.rbc='fail'; msg('Błąd połączenia radiowego',true); } }); }
+function covChanged(on){
+  if(!on){ if(S.rbc==='on'||S.rbc==='connecting'){ S.rbc='lost'; msg('Błąd komunikacji',true); sysLog('Brak zasięgu GSM-R — zerwana łączność z RBC. Jeśli nie wróci w ciągu 20 s, ETCS wdroży hamowanie służbowe.');
+      after(20,()=>{ if(S.rbc!=='lost'||S.level!==2)return; if(moving()&&S.v>.1&&(S.mode==='FS'||S.mode==='OS')){ S.commBrake=true; msg('Błąd połączenia radiowego',true); } }); } }
+  else rbcRetry(); }
+$('#scnSel').value=SCN; $('#scnSel').onchange=e=>{ location.hash=e.target.value==='cisowa'?'cisowa':''; location.reload(); };
+$('#bCov').onclick=e=>{ NV.cov=!NV.cov; click(); e.target.textContent='Zasięg RBC: '+(NV.cov?'jest':'brak'); e.target.classList.toggle('on',NV.cov); };
+function rbcCheck(){ if(S.level!==2||S.rbc==='on') return mainMenu();
+  if(covOK()&&S.lastRbc){ rbcConnect(S.lastRbc[0],S.lastRbc[1]); return; }
+  msg(covOK()?'Brak danych RBC — wprowadź dane RBC':'Brak połączenia z RBC — wprowadź dane RBC',true); winRadio(); }
+function rbcConnect(id,ph){ const x0=id==='short'?RBCS.find(y=>y[0]===rbcArea()):RBCS.find(y=>y[1]===id&&y[2]===ph), x=x0&&x0[0]===rbcArea()?x0:null; if(id!=='short') S.lastRbc=[id,ph];
+  if(!covOK()){ S.rbc='wait'; msg('Brak zasięgu GSM-R — sesja z RBC zostanie nawiązana po odzyskaniu zasięgu',true); sysLog('Dane RBC zapisane. Bez zasięgu ruszasz po START w trybie SR. Po złapaniu zasięgu ETCS sam połączy się z RBC i zaproponuje tryb OS.'); mainMenu(); return; }
+  S.rbc='connecting'; msg('Nawiązywanie sesji z RBC'); mainMenu();
+  after(x?3:8,()=>{ if(S.level!==2||!S.cab)return; if(!covOK()){ S.rbc='wait'; return; } if(x){ rbcUp(x); } else { S.rbc='fail'; msg('Błąd połączenia radiowego',true); sysLog('Nie udało się nawiązać sesji: dane nie pasują do RBC obsługującego ten odcinek (RBC '+rbcArea()+'). Dane są w panelu Instruktor.'); } if(W&&W.title.startsWith('Menu')) mainMenu(); }); }
 const EZT={len:75.6,mass:169,bp:135,vmax:160};   // 31WEbb wg dokumentacji pojazdu
 const TYPY={'Jazda pojedyncza':1,'Jazda wielokrotna-2':2,'Jazda wielokrotna-3':3};
-function winData(){ const t=S.train; openWin({type:'entry',title:'Dane pociągu — EZT 31WEbb',fields:[
-  {label:'Typ pociągu',val:t.cat,type:'list',opts:Object.keys(TYPY),ok:true,onPick(v,w){ const n=TYPY[v]; w.fields[1].val=Math.round(EZT.len*n); w.fields[2].val=EZT.mass*n; w.fields[3].val=EZT.bp; w.fields[4].val=EZT.vmax; w.fields.forEach(f=>{ f.ok=true; f.err=false; }); }},
+function trainOf(cat){ const n=TYPY[cat]; return {cat,n,len:Math.round(EZT.len*n),mass:EZT.mass*n,bp:EZT.bp,vmax:EZT.vmax}; }
+function winDataOk(t){ openWin({type:'entry',title:'Zatwierdź dane pociągu',pre:[`Typ pociągu: <b>${t.cat}</b>`,`Długość: <b>${t.len} m</b>`,`Masa pociągu: <b>${t.mass} t</b>`,`Procent masy hamującej: <b>${t.bp} %</b>`,`Prędkość maksymalna: <b>${t.vmax} km/h</b>`,'Wprowadzenie danych pociągu kompletne?'],fields:[{label:'',val:'',type:'list',opts:['Nie','Tak']}],onX:winData,
+    onDone(w2){ if(w2.fields[0].val!=='Tak') return winData(); S.train=t; S.dataValid=true; msg('Dane pociągu zatwierdzone'); winTrn(); }}); }
+// stałe dane pociągu (wybór typu) — wg podręcznika ERA, okno "Train data" z przyciskiem "Enter data"
+function winData(){ openWin({type:'entry',title:'Dane pociągu — EZT 31WEbb',extra:[{label:'Wprowadź dane',fn:winDataFlex}],fields:[
+  {label:'Typ pociągu',val:S.train.cat,type:'list',opts:Object.keys(TYPY),ok:true}],
+  onX:mainMenu,onDone(w){ const c=w.fields[0].val; const t=trainOf(c); if(S.train.cat===c&&S.train.custom) Object.assign(t,S.train); winDataOk(t); }}); }
+// zmienne dane pociągu — tylko gdy trzeba coś zmienić
+function winDataFlex(){ const t=S.train; openWin({type:'entry',title:'Dane pociągu — '+t.cat,extra:[{label:'Wybierz typ',fn:winData}],fields:[
   {label:'Długość',val:t.len,unit:'m',type:'num',min:10,max:400,maxlen:3,ok:true},
   {label:'Masa pociągu',val:t.mass,unit:'t',type:'num',min:100,max:700,maxlen:3,ok:true},
   {label:'Procent masy hamującej',val:t.bp,unit:'%',type:'num',min:30,max:250,maxlen:3,ok:true},
   {label:'Prędkość maksymalna',val:t.vmax,unit:'km/h',type:'num',min:20,max:160,maxlen:3,ok:true}],
-  onX:mainMenu,onDone(w){ const f=w.fields; openWin({type:'entry',title:'Zatwierdź dane pociągu',pre:f.map(x=>`${x.label}: <b>${x.val} ${x.unit||''}</b>`).concat(['Wprowadzenie danych pociągu kompletne?']),fields:[{label:'',val:'',type:'list',opts:['Nie','Tak']}],onX:winData,
-    onDone(w2){ if(w2.fields[0].val!=='Tak') return winData(); S.train={cat:f[0].val,n:TYPY[f[0].val],len:+f[1].val,mass:+f[2].val,bp:+f[3].val,vmax:+f[4].val}; S.dataValid=true; msg('Dane pociągu zatwierdzone'); winTrn(); }}); }}); }
-function winTrn(){ openWin({type:'entry',title:'Numer pociągu',fields:[{label:'',val:S.trn,type:'num',maxlen:6}],onX:mainMenu,onDone(w){ S.trn=w.fields[0].val; mainMenu(); }}); }
-function shunt(){ if(S.mode==='SH'){ S.mode='SB'; msg('Koniec manewrów — tryb SB'); } else { S.mode='SH';S.started=false;S.eoa=null; msg('Tryb SH — jazda manewrowa, V maks. '+NVV.sh+' km/h'); } closeWin(); }
-function start(){ closeWin(); if(S.level==='SHP') return reqAck('SN'); if(S.level===0) return reqAck('UN'); if(S.level===1){ reqAck('SR'); return; }
-  if(S.rbc!=='on'){ msg('Brak połączenia z RBC — Główne → Dane radiowe',true); return; }
-  msg('Żądanie zezwolenia na jazdę wysłane do RBC…'); after(3,()=>{ if(!(S.mode==='SB'||S.mode==='PT'))return; if(EOAS[S.stage]>S.pos+50) enterFS(); else reqAck('SR'); }); }
+  onX:mainMenu,onDone(w){ const f=w.fields; winDataOk({cat:t.cat,n:t.n,len:+f[0].val,mass:+f[1].val,bp:+f[2].val,vmax:+f[3].val,custom:true}); }}); }
+function winTrn(){ openWin({type:'entry',title:'Numer pociągu',fields:[{label:'',val:S.trn,type:'num',maxlen:6}],onX:mainMenu,onDone(w){ S.trn=w.fields[0].val; (S.level===2&&S.rbc!=='on'&&!S.started)?rbcCheck():mainMenu(); }}); }
+function shunt(){ if(S.mode==='SH'){ S.mode='SB'; msg('Wejście do trybu GOTOWOŚĆ'); } else { S.mode='SH';S.started=false;S.eoa=null; msg('Wejście do trybu JAZDA MANEWROWA'); } closeWin(); }
+function start(){ closeWin(); if(S.level==='SHP') return reqAck('SN'); if(S.level===0) return reqAck('UN'); if(S.level===1){ if(S.mode==='PT'&&!S.ie2) sysLog('Ir-1b: dalsza jazda po TRIP w tym samym kierunku tylko po instrukcji europejskiej nr 2 od dyżurnego.'); return reqAck('SR'); }
+  if(S.rbc!=='on'&&S.mode!=='SR'){ if(S.rbc==='connecting'){ msg('Trwa nawiązywanie sesji z RBC'); return; } msg('Brak sesji z RBC — start w trybie SR'); return reqAck('SR'); }
+  if((S.mode==='FS'||S.mode==='OS')&&S.rbc==='lost'){ return reqAck('SR'); }
+  if(S.mode==='SR'){ const nb=TRACK.bg.find(b=>b>S.pos); if(nb!=null&&nb-S.pos<=300&&availNow()>nb+50&&covOK()){ S.l2os=true; reqAck('OS'); } else msg('Brak zezwolenia na jazdę z RBC'); return; }
+  if(S.mode==='PT'){ if(!S.ie2) sysLog('Ir-1b: dalsza jazda po TRIP w tym samym kierunku tylko po instrukcji europejskiej nr 2 od dyżurnego (radio → dyżurny → „Zatrzymanie przez ETCS”).');
+    msg('Żądanie zezwolenia na jazdę wysłane do RBC'); S.maReq=true; mainMenu(); after(2,()=>{ S.maReq=false; closeWin(); if(S.mode==='PT') reqAck('SR'); }); return; }
+  if(S.mode==='SB'){
+    msg('Żądanie zezwolenia na jazdę wysłane do RBC'); S.maReq=true; mainMenu();
+    after(3,()=>{ S.maReq=false; if(!(S.mode==='SB'||S.mode==='PT')||S.rbc!=='on'){ if(W&&W.title.startsWith('Menu')) mainMenu(); return; }
+      if(S.posKnown){ S.started=true; enterFS(); closeWin(); if(availNow()-S.pos<150) sysLog('RBC dał zezwolenie na jazdę w trybie FS, ale semafor przed pociągiem wskazuje „Stój” — koniec zezwolenia jest tuż przed czołem. Po podaniu sygnału zezwolenie przedłuży się samo.'); }
+      else { closeWin(); sysLog('Pozycja pociągu nieznana dla RBC — RBC zezwala tylko na tryb SR (Ir-1b § 4 ust. 11 pkt 5). Po najechaniu na pierwszą grupę balis pozycja będzie znana.'); reqAck('SR'); } }); return; }
+  reqAck('SR'); }
 function fkey(k){ click(); if(!(S.cab&&S.boot===2))return;
   if(k==='main') return mainMenu();
-  if(k==='ovr') return openWin({type:'menu',title:'Pomiń',items:[{label:'Koniec Zezwolenia na Jazdę',en:S.v<.1&&(S.level===1||S.level===2)&&S.dataValid&&!!S.trn&&S.mode!=='SH',fn(){ S.ovEoa=S.eoa!=null?S.eoa:(EOAS[S.stage]>S.pos?EOAS[S.stage]:null); S.ovT=S.t; S.override=true;S.mode='SR';S.started=true;S.srFrom=S.pos;S.eoa=null;S.ack=null; msg('Pominięcie końca zezwolenia aktywne — V maks. '+NVV.ovr+' km/h',true); sysLog('Funkcja „Pomiń” wymaga rozkazu pisemnego od dyżurnego ruchu. Działa najwyżej '+NVV.tOvr+' s lub '+NVV.dOvr+' m albo do minięcia dawnego końca zezwolenia.'); closeWin(); }}]});
-  if(k==='data') return openWin({type:'info',title:'Widok danych',lines:[`ID maszynisty: <b>${S.driverId||'—'}</b>`,`Numer pociągu: <b>${S.trn||'—'}</b>`,`Poziom: <b>${lvName(S.level)}</b>`,`Typ pociągu: <b>${S.train.cat}</b>`,`Długość: <b>${S.train.len} m</b>`,`Masa: <b>${S.train.mass} t</b>`,`Masa hamująca: <b>${S.train.bp}%</b>`,`V maks.: <b>${S.train.vmax} km/h</b>`,`Dane zatwierdzone: <b>${S.dataValid?'tak':'nie'}</b>`,`RBC: <b>${S.level===2?S.rbc:'nie dotyczy'}</b>`]});
-  if(k==='spec') return openWin({type:'info',title:'Funkcje specjalne',lines:['Prędkość w SR: <b>'+NVV.sr+' km/h</b>','Prędkość w OS: <b>'+NVV.os+' km/h</b>','Jazda manewrowa (SH): <b>'+NVV.sh+' km/h</b>','Poziom 0 (UN): <b>'+NVV.un+' km/h</b>','Prędkość zwolnienia: <b>'+NVV.rel+' km/h</b>','Pomiń: <b>'+NVV.ovr+' km/h, '+NVV.dOvr+' m, '+NVV.tOvr+' s</b>','Przyczepność: <b>normalna</b>']});
+  if(k==='ovr') return openWin({type:'menu',title:'Pomiń',items:[{label:'Koniec Zezwolenia na Jazdę',en:S.v<.1&&(S.level===1||S.level===2)&&S.dataValid&&!!S.trn&&S.mode!=='SH'&&S.mode!=='IS'&&(S.mode!=='PT'||!!S.ie2),fn(){ S.ovEoa=S.eoa!=null?S.eoa:availNow(); S.ovT=S.t; S.override=true;S.mode='SR';S.started=true;S.srFrom=S.pos;S.eoa=null;S.ack=null; msg('Pominięcie końca zezwolenia aktywne — V maks. '+NVV.ovr+' km/h',true); sysLog('Funkcja „Pomiń” wymaga rozkazu pisemnego od dyżurnego ruchu. Działa najwyżej '+NVV.tOvr+' s lub '+NVV.dOvr+' m albo do minięcia dawnego końca zezwolenia.'); closeWin(); }}]});
+  if(k==='data') return openWin({type:'info',title:'Widok danych',lines:[`ID maszynisty: <b>${S.driverId||'—'}</b>`,`Numer pociągu: <b>${S.trn||'—'}</b>`,`Poziom: <b>${lvName(S.level)}</b>`,`Typ pociągu: <b>${S.train.cat}</b>`,`Długość: <b>${S.train.len} m</b>`,`Masa: <b>${S.train.mass} t</b>`,`Masa hamująca: <b>${S.train.bp}%</b>`,`V maks.: <b>${S.train.vmax} km/h</b>`,`Dane zatwierdzone: <b>${S.dataValid?'tak':'nie'}</b>`,`RBC: <b>${S.level===2?(S.rbcName?S.rbcName+' ('+S.rbc+')':S.rbc):'nie dotyczy'}</b>`]});
+  if(k==='spec') return openWin({type:'menu',title:'Spec',items:[
+    {label:'Prędkość SR',en:S.v<.1&&S.level!=null,fn(){ openWin({type:'entry',title:'Prędkość SR',fields:[{label:'',val:String(S.srV||NVV.sr),type:'num',min:10,max:160,maxlen:3,unit:'km/h'}],onX:closeWin,onDone(w){ S.srV=+w.fields[0].val; msg('Prędkość maksymalna w trybie SR: '+S.srV+' km/h'); closeWin(); }}); }},
+    {label:'Przyczepność: '+(S.slip?'śliska szyna':'normalna'),en:true,fn(){ S.slip=!S.slip; msg('Przyczepność: '+(S.slip?'śliska szyna':'normalna')); closeWin(); }},
+    {label:'Wartości krajowe',fn(){ openWin({type:'info',title:'Wartości krajowe',lines:['Odpowiedzialność Personelu (SR): <b>'+(S.srV||NVV.sr)+' km/h</b>','Na Widoczność z ETCS (OS): <b>'+NVV.os+' km/h</b>','Jazda Manewrowa (SH): <b>'+NVV.sh+' km/h</b>','Linia Niewyposażona (UN): <b>'+NVV.un+' km/h</b>','Prędkość zwolnienia: <b>'+NVV.rel+' km/h</b>','Pomiń Koniec Zezwolenia: <b>'+NVV.ovr+' km/h, '+NVV.dOvr+' m, '+NVV.tOvr+' s</b>']}); }}]});
   if(k==='set') return winSet(); }
 function infoW(title,lines){ openWin({type:'info',title,lines}); }
 function winSet(){ openWin({type:'menu',title:'Ustawienia',items:[
@@ -767,7 +828,13 @@ function winSet(){ openWin({type:'menu',title:'Ustawienia',items:[
 function runTest(){ closeWin(); if(S.v>.1||S.mode!=='SB'){ msg('Test ETCS możliwy tylko na postoju w trybie SB',true); return; }
   S.testing=true; msg('Test ETCS trwa...'); after(8,()=>{ S.testing=false; S.tested=true; msg('Test ETCS OK'); tone(1200,.15,.06); }); }
 $('#F').addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) fkey(b.dataset.f); });
-el.C1.addEventListener('click',doAck);
+let holdTimer=null;
+function ackPress(){ ackDown=performance.now(); clearTimeout(holdTimer); holdTimer=null;
+  if(S.ack==='SR'){ el.C1.classList.add('holding'); $('#bAck').classList.add('holding'); holdTimer=setTimeout(()=>{ holdTimer=null; holdEnd(); ackDown=performance.now()-HOLD-100; doAck(); },HOLD); } }
+function holdEnd(){ el.C1.classList.remove('holding'); $('#bAck').classList.remove('holding'); }
+function ackRelease(id){ if(holdTimer){ clearTimeout(holdTimer); holdTimer=null; holdEnd(); doAck(); return; } if(S.ack==='SR') return; if(id==='C9'&&S.ack!=='EB') return; doAck(); }
+function ackCancel(){ if(holdTimer){ clearTimeout(holdTimer); holdTimer=null; holdEnd(); } }
+['C1','C9'].forEach(id=>{ const n=el[id]; n.addEventListener('pointerdown',e=>{ e.preventDefault(); ackPress(); }); n.addEventListener('pointerup',()=>ackRelease(id)); n.addEventListener('pointercancel',ackCancel); n.addEventListener('pointerleave',ackCancel); n.addEventListener('contextmenu',e=>e.preventDefault()); });
 
 /* ---------- kabina ---------- */
 $('#bCab').onclick=()=>{ click(); if(!S.cab){ S.cab=true;S.boot=1;S.mode='SB'; setTimeout(()=>{ S.boot=2; S.msgs=[]; S.tested=false; msg('Przeprowadzić test ETCS'); msg('Autotest pomyślny'); winDriver(); },1800); }
@@ -776,25 +843,29 @@ $('#bCab').onclick=()=>{ click(); if(!S.cab){ S.cab=true;S.boot=1;S.mode='SB'; s
 const lev=$('#lev'); function setLev(v){ S.lever=Math.max(-100,Math.min(100,v)); lev.value=S.lever; }
 lev.oninput=()=>S.lever=+lev.value; $('#bZero').onclick=()=>setLev(0);
 $('#bEB').onclick=()=>{ S.eb=!S.eb; };
-$('#bAck').onclick=doAck; const shpAck=()=>{ if(S.shp){ S.shp=null; click(); } S.caNext=performance.now()+60000; }; $('#bShp').onclick=shpAck;
+{ const b=$('#bAck'); b.addEventListener('pointerdown',e=>{ e.preventDefault(); ackPress(); }); b.addEventListener('pointerup',()=>ackRelease('bAck')); b.addEventListener('pointercancel',ackCancel); b.addEventListener('pointerleave',ackCancel); b.addEventListener('contextmenu',e=>e.preventDefault()); } $('#bIso').onclick=()=>{ if(!S.cab||S.boot!==2){ return; } click(); if(S.mode!=='IS'){ Object.assign(S,{mode:'IS',ack:null,ebi:false,sbi:false,ackBrake:false,commBrake:false,balBrake:false,eoa:null,started:false,override:false}); closeWin(); msg('Wejście do trybu ODŁĄCZENIE SYSTEMU',true); sysLog('ETCS odizolowany (IS): urządzenie nie nadzoruje jazdy. Prowadź pociąg według sygnałów, do 160 km/h, po uzgodnieniu z dyżurnym.'); $('#bIso').textContent='Izolacja EVC: 1'; }
+  else { $('#bIso').textContent='Izolacja EVC: 0'; S.boot=1; Object.assign(S,{mode:'SB',level:null,dataValid:false,rbc:'off',posKnown:false}); closeWin(); setTimeout(()=>{ S.boot=2; S.msgs=[]; msg('Reset systemu — tryb GOTOWOŚĆ'); winDriver(); },1800); } };
+const shpAck=()=>{ if(S.shp){ S.shp=null; click(); } S.caNext=performance.now()+60000; }; $('#bShp').onclick=shpAck;
 $$('[data-w]').forEach(b=>b.onclick=()=>{ S.warp=+b.dataset.w; $$('[data-w]').forEach(x=>x.classList.toggle('on',x===b)); });
-addEventListener('keydown',e=>{ const k=e.key.toLowerCase(); if(k==='arrowup'||k==='w'){setLev(S.lever+10);e.preventDefault();} else if(k==='arrowdown'||k==='s'){setLev(S.lever-10);e.preventDefault();}
+addEventListener('keyup',e=>{ if(e.key==='Enter') ackRelease('key'); });
+addEventListener('keydown',e=>{ const k=e.key.toLowerCase(); if(k==='enter'){ if(!e.repeat) ackPress(); e.preventDefault(); return; } if(k==='arrowup'||k==='w'){setLev(S.lever+10);e.preventDefault();} else if(k==='arrowdown'||k==='s'){setLev(S.lever-10);e.preventDefault();}
   else if(k===' '){setLev(0);e.preventDefault();} else if(k==='enter') doAck(); else if(k==='b') S.eb=!S.eb; else if(k==='c') shpAck(); });
 
 /* ================= radiotelefon (układ wg Koliber GSM-R/VHF) ================= */
-const R={on:false,boot:false,mode:'VHF',scr:'vhf',ch:2,chIn:'',vol:4,tx:false,rx:false,arm:false,link:null,alarm:null,hs:false,mon:false,
+const R={on:false,boot:false,mode:'VHF',scr:'vhf',ch:2,chIn:'',vg:false,chMode:false,vol:4,tx:false,rx:false,arm:false,link:null,alarm:null,hs:false,mon:false,
   reg:null,mem:null,tn:'',dial:'',status:'',call:null,book:0,set:{short:false,row:0}};
 const EVN='3-21505909-01';
-const BOOK=[{n:'1200',who:'dr',name:'Dyżurny ruchu'},{n:'1300',who:'dysp',name:'Dyspozytor liniowy'},{n:'1400',who:'zas',name:'Dyspozytor zasilania'},{n:'200',who:'grp',name:'Wszyscy w pobliżu'}];
-const station=()=>S.pos<4500?'Dobra Wola':'Lipowa';
-const NAME={dr:()=>'Dyżurny ruchu '+station(),dysp:()=>'Dyspozytor liniowy',zas:()=>'Dyspozytor zasilania',poc:()=>'Maszynista poc. 44012',grp:()=>'Maszynista poc. 44012 (grupa 200)'};
-function log(from,text,cls){ const d=document.createElement('div'); d.className=cls||''; d.innerHTML=`<small>${clock()} · ${from}</small>${text}`; const L=$('#log'); L.prepend(d); while(L.children.length>40) L.lastChild.remove(); ttsLog(from,text,cls); }
+const BOOK=[{n:'1200',who:'dr',name:'Dyżurny ruchu'},{n:'1300',who:'dysp',name:'Dyspozytor liniowy'},{n:'1400',who:'zas',name:'Dyspozytor zasilania'},{n:'200',who:'grp',name:'Wszyscy w pobliżu'},{n:'909999',who:'test',name:'Test GSM-R'}];
+const station=()=>STATIONS.reduce((a,b)=>Math.abs(b.c-S.pos)<Math.abs(a.c-S.pos)?b:a).n;
+const NAME={dr:()=>'Dyżurny ruchu '+station(),dysp:()=>'Dyspozytor liniowy',zas:()=>'Dyspozytor zasilania',poc:()=>'Maszynista poc. 44012',grp:()=>'Maszynista poc. 44012 (grupa 200)',test:()=>'Automat testowy GSM-R 909999'};
+function log(from,text,cls){ const d=document.createElement('div'); d.className=cls||''; d.innerHTML=`<small>${clock()} · ${from}</small>${text}`; const L=$('#log'); L.prepend(d); while(L.children.length>40) L.lastChild.remove(); }
 function sysLog(t){ log('System',t,'sys'); }
 function alertTab(on){ $('#tabRadio').classList.toggle('alert',on&&document.body.dataset.tab!=='radio'); }
-function voice(who,text){ R.rx=true; ui(); if(R.mode==='VHF') tone(180,.15,.03,'sawtooth'); log(NAME[who](),text,'in'); alertTab(true); setTimeout(()=>{R.rx=false;ui();},2200); }
-const conn=()=>R.on&&!R.boot&&((R.mode==='GSM'&&R.call&&R.call.state==='active')||(R.mode==='VHF'&&R.link&&Date.now()<R.link.exp));
+function voice(who,text){ R.rx=true; ui(); if(R.mode==='VHF') tone(180,.15,.03,'sawtooth'); log(NAME[who](),text,'in'); speak(text); alertTab(true); setTimeout(()=>{R.rx=false;ui();},2200); }
+const vhfLink=()=>R.link&&Date.now()<R.link.exp&&(R.mode==='VHF'||(R.vg&&!R.call));
+const conn=()=>R.on&&!R.boot&&((R.mode==='GSM'&&R.call&&R.call.state==='active')||vhfLink());
 const linked=()=>conn()&&R.hs;
-const who=()=>R.mode==='GSM'?R.call.who:R.link.who;
+const who=()=>R.mode==='GSM'&&R.call?R.call.who:R.link.who;
 function toast(t,ms){ R.status=t; ui(); setTimeout(()=>{ if(R.status===t){ R.status=''; ui(); } },ms||2800); }
 const kbeep=()=>tone(1500,.03,.03);
 
@@ -808,17 +879,20 @@ const PHR={
   alarm:{l:'Zgłaszam zagrożenie — przyczyna alarmu',t:()=>`Pociąg ${S.trn||'…'}, nadałem sygnał alarmowy z powodu zagrożenia bezpieczeństwa ruchu na km ${(S.pos/1000).toFixed(1).replace('.',',')}.`}};
 function respond(w,key){ const n=S.trn||'bez numeru';
   if(w==='dr'){ if(key==='test'){ G.test=true; return `Pociąg ${n}, tu dyżurny ruchu ${station()}. Słyszę dobrze, próba łączności bez uwag.`; }
-    if(key==='ready'){ G.ready=true; return `Pociąg ${n}, przyjąłem gotowość do odjazdu. Droga przebiegu ułożona, odjazd zgodnie z rozkładem.`; }
-    if(key==='stop'){ if(S.stage===2&&S.v<1&&S.pos>5800){ G.reported=true; after(8,clear3); return `Pociąg ${n}, przyjąłem zatrzymanie. Tor wjazdowy częściowo zajęty — po podaniu sygnału wjedziesz na widoczność. Oczekuj.`; } return `Pociąg ${n}, przyjąłem.`; }
-    if(key==='eb') return S.mode==='PT'||S.mode==='TR'?`Pociąg ${n}, przyjąłem. Minąłeś koniec zezwolenia. Nie ruszaj bez mojego polecenia. Po potwierdzeniu na DMI wybierz Start i jedź w trybie SR do najbliższego semafora, do 40 km/h.`:`Pociąg ${n}, przyjąłem zatrzymanie przez ETCS. Jeśli pociąg jest sprawny, możesz kontynuować jazdę zgodnie ze wskazaniami DMI.`;
+    if(key==='ready'){ G.ready=true; const st=STATIONS.find(x=>S.pos>=x.plat[0]-200&&S.pos<=x.plat[1]); if(st&&st.ex&&st.ex.a==='stop'&&!st.end){ after(4,()=>setAsp(st.ex,'go','Dyżurny ruchu '+st.n+' podał sygnał zezwalający na semaforze wyjazdowym.')); } return `Pociąg ${n}, przyjąłem gotowość do odjazdu. Droga przebiegu ułożona, zaraz podam sygnał.`; }
+    if(key==='stop'){ const g=SIGS.find(x=>x.s>S.pos&&x.a==='stop'); if(g&&S.v<1&&g.s-S.pos<800&&!(g.st&&g.st.end)){ G.reported=true; const to=g.clearTo||'go'; g.autoClear=0; after(8,()=>setAsp(g,to,to==='sz'?'Semafor '+g.n+': zezwolenie na jazdę na widoczność (OS). Potwierdź tryb OS.':'Dyżurny ruchu podał sygnał zezwalający na semaforze '+g.n+'.')); return `Pociąg ${n}, przyjąłem zatrzymanie przed semaforem ${g.n}. Za chwilę ${to==='sz'?'zezwolę na jazdę na widoczność':'podam sygnał zezwalający'}.`; } return `Pociąg ${n}, przyjąłem.`; }
+    if(key==='eb'&&S.mode==='PT'){ S.ie2=true; sysLog('Dyżurny wydał instrukcję europejską nr 2 (pole 2.10): jazda w trybie SR do następnego semafora. Teraz użyj „Pomiń” → Koniec Zezwolenia na Jazdę i jedź w SR. Przy następnym semaforze zezwalającym: poziom 1 — balisa przywróci FS, poziom 2 — ok. 150 m przed semaforem naciśnij START.'); return `Pociąg ${n}, przyjąłem zatrzymanie przez system, km ${(S.pos/1000).toFixed(1).replace('.',',')}. Wydaję instrukcję europejską numer 2, pole 2.10: jazda w trybie Odpowiedzialność Personelu do następnego semafora. Potwierdź.`; }
+    if(key==='eb') return S.mode==='TR'?`Pociąg ${n}, przyjąłem. Najpierw zatrzymaj pociąg i potwierdź zatrzymanie na DMI, potem zgłoś się ponownie.`:`Pociąg ${n}, przyjąłem zatrzymanie przez ETCS. Jeśli pociąg jest sprawny, możesz kontynuować jazdę zgodnie ze wskazaniami DMI.`;
     if(key==='arrive'){ if(S.arrived) G.arrRep=true; return `Pociąg ${n}, potwierdzam przyjazd w całości. Dziękuję.`; }
     if(key==='alarm') return `Przyjąłem zgłoszenie zagrożenia. Wstrzymuję ruch na szlaku. Podaj szczegóły, gdy będzie to bezpieczne.`;
     return 'Dziękuję, bez odbioru.'; }
+  if(w==='test') return 'Test łączności GSM-R: połączenie prawidłowe, jakość dobra. Koniec testu.';
   if(w==='poc'||w==='grp') return key==='test'?'Maszynista pociągu 44012, słyszę dobrze.':'Maszynista 44012, przyjąłem.';
   return key==='alarm'?`${NAME[w]()}, przyjąłem zgłoszenie, powiadamiam dyżurnych.`:`${NAME[w]()}, przyjąłem. W sprawach ruchu proszę kontaktować się z dyżurnym ruchu.`; }
 function say(key){ if(!linked())return; const w=who(); log('Ty (maszynista)',PHR[key].t(),'me');
-  if(R.mode==='VHF'||R.call.grp){ R.tx=true; ui(); setTimeout(()=>{R.tx=false;ui();},1500); }
-  if(R.mode==='VHF'){ R.link.exp=Date.now()+120000; if(R.ch!==TRACK.chan)return; }
+  const viaVhf=!(R.mode==='GSM'&&R.call);
+  if(viaVhf||R.call.grp){ R.tx=true; ui(); setTimeout(()=>{R.tx=false;ui();},1500); }
+  if(viaVhf){ R.link.exp=Date.now()+120000; if(R.ch!==TRACK.chan)return; }
   setTimeout(()=>{ if(R.on) voice(w,respond(w,key)); },2600); }
 $('#phr').innerHTML=Object.keys(PHR).map(k=>`<button data-p="${k}">🎙 ${PHR[k].l}</button>`).join('');
 $('#phr').addEventListener('click',e=>{ const b=e.target.closest('button'); if(b&&!b.disabled) say(b.dataset.p); });
@@ -843,7 +917,7 @@ function deregister(){ R.scr='main'; R.status='Trwa wyrejestrowanie z GSM-R'; ui
 function startCall(num){ if(num==='299') return rec(); let c=BOOK.find(b=>b.n===num); if(!c&&/^2\d{5,}$/.test(num)) c={n:num,who:'poc',name:'Maszynista '+num};
   R.call={num,who:c?c.who:null,name:c?c.name:num,state:'dialing',grp:num==='200'}; R.scr='call'; R.dial=''; ui(); tone(425,.8,.05,'sine',.6);
   setTimeout(()=>{ const k=R.call; if(!k||k.state!=='dialing')return; if(!k.who){ R.call=null; R.scr='main'; toast('Numer niedostępny'); return; }
-    k.state='active'; k.t0=Date.now(); ui(); log('System',`Połączenie GSM-R: ${k.name} (${k.num})`,'sys'); voice(k.who,k.who==='dr'?`Dyżurny ruchu ${station()}, słucham.`:k.grp?'Maszynista pociągu 44012 na grupie, słucham.':`${NAME[k.who]()}, słucham.`); },2600); }
+    k.state='active'; k.t0=Date.now(); ui(); log('System',`Połączenie GSM-R: ${k.name} (${k.num})`,'sys'); voice(k.who,k.who==='test'?'Test łączności GSM-R 909999. Powiedz dowolny komunikat, automat odpowie, jeśli połączenie działa.':k.who==='dr'?`Dyżurny ruchu ${station()}, słucham.`:k.grp?'Maszynista pociągu 44012 na grupie, słucham.':`${NAME[k.who]()}, słucham.`); },2600); }
 function endCall(){ if(R.call&&R.call.state==='active') sysLog('Połączenie zakończone.'); clearInterval(ringT); R.call=null; R.scr=R.mode==='GSM'?'main':'vhf'; R.alarm=null; alertTab(false); ui(); }
 function answer(){ const k=R.call; if(!k||k.state!=='in')return; clearInterval(ringT); k.state='active'; k.t0=Date.now(); ui(); if(k.text) voice(k.who,k.text); }
 function rec(){ R.alarm={txt:'Alarm kolejowy'}; R.call={num:'299',who:'dr',name:'Alarm kolejowy',state:'active',t0:Date.now(),grp:true,rec:true}; R.scr='call'; R.dial=''; ui();
@@ -858,16 +932,20 @@ let ringT=null;
 function incoming(w,text){ if(!R.on||R.boot){ sysLog('Dyżurny próbował wywołać pociąg, ale radiotelefon jest wyłączony!'); return; }
   if(R.mode==='VHF'){ if(R.ch!==TRACK.chan){ sysLog(`Wywołanie od dyżurnego na kanale R${TRACK.chan} nie dotarło — radio ustawione na R${R.ch}.`); return; }
     tone(1160,.9,.08); R.link={who:w,exp:Date.now()+120000}; setTimeout(()=>voice(w,text),1100); return; }
-  if(R.scr==='search'||!R.reg){ if(R.ch===TRACK.chan){ sysLog(`Brak rejestracji w GSM-R, ale wywołanie odebrano z kanału R${R.ch} radia analogowego. Aby odpowiedzieć, przejdź do trybu 150 MHz (* i ✓) albo zarejestruj numer.`); tone(1160,.9,.08); setTimeout(()=>voice(w,text),1100); }
-    else sysLog(`Dyżurny nie mógł wywołać pociągu: brak rejestracji w GSM-R, a kanał radia analogowego to R${R.ch} zamiast R${TRACK.chan}. Przytrzymaj klawisz 4, aby zmienić kanał.`); return; }
+  if(R.scr==='search'||!R.reg){ if(R.vg&&R.ch===TRACK.chan){ sysLog(`Brak rejestracji w GSM-R, ale wywołanie odebrano przez funkcję VHF w GSM-R (kanał ${String(R.ch).padStart(3,'0')}). Podnieś słuchawkę i odpowiedz przez PTT.`); tone(1160,.9,.08); R.link={who:w,exp:Date.now()+120000}; setTimeout(()=>voice(w,text),1100); }
+    else sysLog(R.vg?`Dyżurny nie mógł wywołać pociągu: brak rejestracji w GSM-R, a funkcja VHF słucha kanału ${String(R.ch).padStart(3,'0')} zamiast ${String(TRACK.chan).padStart(3,'0')}. Przytrzymaj klawisz 4 lub 6, aby zmienić kanał.`:'Dyżurny nie mógł wywołać pociągu: brak rejestracji w GSM-R, a funkcja VHF w GSM-R jest wyłączona (włączysz ją: * i klawisz VHF+GSMR).'); return; }
   if(R.call){ if(R.call.state==='active'&&R.call.who===w) voice(w,text); else sysLog('Dyżurny próbował się połączyć, ale linia była zajęta. Oddzwoń: klawisz )1(.'); return; }
   R.call={num:'1200',who:w,name:'Dyżurny ruchu',state:'in',text}; R.scr='call'; alertTab(true); ui();
   clearInterval(ringT); let n=0; ringT=setInterval(()=>{ const k=R.call; if(!k||k.state!=='in'||++n>12){ clearInterval(ringT); if(k&&k.state==='in'){ sysLog('Nieodebrane połączenie od: '+k.name); endCall(); } return; } tone(1000,.3,.08); tone(1300,.3,.08,'sine',.35); },1500); }
 function evRadiostop(){ if(!R.on||R.boot){ sysLog('Inny pociąg nadał Radiostop, ale radiotelefon jest wyłączony — sygnału nie odebrano!'); return; }
-  if(R.ch!==TRACK.chan){ sysLog(`Radiostop nadano na kanale R${TRACK.chan}, a radio odbiera kanał R${R.ch} — sygnału nie odebrano!`+(R.mode==='GSM'?' W GSM-R kanał zmienisz, przytrzymując klawisz 4.':'')); return; }
+  if(R.mode==='GSM'&&!R.vg){ sysLog('Inny pociąg nadał Radiostop w sieci 150 MHz, ale radiotelefon pracuje w GSM-R bez funkcji VHF — sygnału nie odebrano!'); return; }
+  if(R.mode==='GSM'&&R.scr!=='search'){ if(R.ch!==TRACK.chan){ sysLog(`Radiostop nadano na kanale ${String(TRACK.chan).padStart(3,'0')}, a funkcja VHF w GSM-R słucha kanału ${String(R.ch).padStart(3,'0')} — sygnału nie odebrano!`); return; }
+    for(let i=0;i<30;i++) tone([1160,1400,1670][i%3],.1,.1,'sine',i*.1); R.rx=true; ui(); setTimeout(()=>{ R.rx=false; ui(); },3000);
+    sysLog('Słychać sygnał RADIOSTOP z kanału VHF. W trybie VHF w GSM-R radiotelefon NIE wdraża hamowania nagłego i nie pokazuje alarmu na wyświetlaczu — zatrzymaj pociąg sam i wyjaśnij przyczynę z dyżurnym.'); return; }
+  if(R.ch!==TRACK.chan){ sysLog(`Radiostop nadano na kanale R${TRACK.chan}, a radio odbiera kanał R${R.ch} — sygnału nie odebrano!`); return; }
   for(let i=0;i<30;i++) tone([1160,1400,1670][i%3],.1,.1,'sine',i*.1); const keep=R.call; R.alarm={txt:'RADIOSTOP - ODEBRANO'}; ui();
   if(S.cab){ S.rs=true; msg('RADIOSTOP — hamowanie nagłe',true); }
-  sysLog('Odebrano sygnał RADIOSTOP'+(R.mode==='GSM'?' (terminal w trybie GSM-R odbiera też kanał analogowy R'+R.ch+')':'')+' — wdrożono hamowanie nagłe. Po zatrzymaniu potwierdź na DMI i wyjaśnij przyczynę z dyżurnym.');
+  sysLog('Odebrano sygnał RADIOSTOP — wdrożono hamowanie nagłe. Po zatrzymaniu potwierdź na DMI i wyjaśnij przyczynę z dyżurnym.');
   setTimeout(()=>{ if(!keep||!keep.rec) R.alarm=null; ui(); },4000); }
 function evRec(){ if(!R.on||R.boot){ sysLog('Nadano alarm REC, ale radiotelefon jest wyłączony — alarmu nie odebrano!'); return; }
   if(R.mode!=='GSM'||R.scr==='search'){ sysLog('Alarm REC nadano w sieci GSM-R, a radiotelefon pracuje tylko w trybie 150 MHz — alarmu nie odebrano!'); return; }
@@ -881,8 +959,12 @@ $('#evCall').onclick=()=>incoming('dr',`Pociąg ${S.trn||'na szlaku'}, tu dyżur
 const SETROWS=[['Skrót do rejestracji',()=>R.set.short?'TAK':'NIE'],['Domyślny CT',()=>'2'],['Domyślny FC',()=>'1'],['Domyślny TT',()=>'5'],['Poziom głośnik GSM-R',()=>R.vol]];
 function softPress(i){ if(!R.on||R.boot)return; kbeep(); const s=R.scr; if(!R.status.startsWith('Trwa')) R.status='';
   if(s==='vhf'){ if(i===0) zew(1); else if(i===1) zew(3); else if(i===2){ R.mon=!R.mon; toast(R.mon?'Nasłuch włączony':'Nasłuch wyłączony'); } else if(i===3){ tone(220,.5,.04,'sawtooth'); toast('Blokada szumów otwarta',1200); } else R.scr='vmenu'; }
-  else if(s==='vmenu'){ if(i===0||i===1){ R.ch=(R.ch-1+(i?1:-1)+8)%8+1; R.link=null; } else if(i===2) R.vol=Math.max(0,R.vol-1); else if(i===3) R.vol=Math.min(7,R.vol+1); else R.scr='vhf'; }
+  else if(s==='vmenu'){ if(i===0) R.scr='vkan'; else if(i===1) R.scr='vust'; else if(i===2) toast('TELCRM: brak wiadomości'); else if(i===3) toast('RADSTOP: nadawanie przyciskiem A'); else R.scr='vserv'; }
+  else if(s==='vkan'){ if(i===0||i===1){ R.ch=(R.ch-1+(i?1:-1)+8)%8+1; R.link=null; } else if(i===4) R.scr='vmenu'; }
+  else if(s==='vust'){ if(i===0) R.vol=Math.max(0,R.vol-1); else if(i===1) R.vol=Math.min(7,R.vol+1); else if(i===4) R.scr='vmenu'; }
+  else if(s==='vserv'){ if(i===0) toast('Rejestracja głosowa: aktywna'); else if(i===1) toast('Rejestr systemowy: bez błędów'); else if(i===2) toast('Radiotelefon Koliber GSM-R/VHF (sym.)'); else if(i===3){ if(R.vlog){ sysLog('Wylogowano z radiotelefonu (numer '+R.vlog+').'); R.vlog=null; toast('Wylogowano'); } else toast('Brak zalogowanego numeru'); } else { R.scr='vlogin'; R.vin=''; } }
   else if(s==='main'){ if(i<4) return startCall(BOOK[i].n); R.scr='menu1'; }
+  else if(s==='askVhf'){ if(i===1){ R.vg=!R.vg; R.scr='main'; R.link=null; sysLog(R.vg?`Funkcja VHF w GSM-R włączona — terminal słucha kanału VHF ${String(R.ch).padStart(3,'0')}. Kanał zmienisz, przytrzymując klawisz 4 lub 6.`:'Funkcja VHF w GSM-R wyłączona.'); } }
   else if(s==='menu1'){ if(i===0) R.scr='regmenu'; else if(i===1){ R.scr='book'; R.book=0; } else if(i===2) toast('Brak wiadomości tekstowych'); else if(i===3) toast('Lista połączeń jest pusta'); else R.scr='menu2'; }
   else if(s==='menu2'){ if(i===4){ R.scr='settings'; R.set.row=0; } else toast(['Czas z sieci GSM-R','Data z sieci GSM-R','Język: polski','Sieć: GSM-R PL (automatycznie)'][i]); }
   else if(s==='settings'){ if(i===0){ if(R.set.row===0) R.set.short=!R.set.short; else if(R.set.row===4) R.vol=(R.vol+1)%8; else tone(300,.15); } else if(i===3) R.set.row=(R.set.row+4)%5; else if(i===4) R.set.row=(R.set.row+1)%5; }
@@ -896,7 +978,8 @@ function softPress(i){ if(!R.on||R.boot)return; kbeep(); const s=R.scr; if(!R.st
 function okKey(){ if(!R.on||R.boot)return; kbeep(); const s=R.scr;
   if(s==='askGsm') return toGsm(); if(s==='askVhf') return toVhf();
   if(s==='vhf'&&R.chIn){ const n=+R.chIn; R.chIn=''; if(n>=1&&n<=8){ R.ch=n; R.link=null; } else { tone(300,.2); toast('Brak kanału'); } }
-  else if(s==='vmenu') R.scr='vhf';
+  else if(s==='vlogin'){ if(R.vin.length>=3){ R.vlog=R.vin; R.vin=''; R.scr='vhf'; sysLog('Zalogowano do radiotelefonu numerem '+R.vlog+'. Numer widać w lewym górnym rogu ekranu VHF.'); toast('Zalogowano: '+R.vlog,3000); return; } tone(300,.2); toast('Wprowadź numer funkcyjny',1500); }
+  else if(['vmenu','vkan','vust','vserv'].includes(s)) R.scr=s==='vmenu'?'vhf':'vmenu';
   else if(s==='chsel'){ R.scr='main'; sysLog(`Kanał radia analogowego ustawiony na R${R.ch}. W trybie GSM-R terminal nadal odbiera sygnały z tego kanału.`); toast('Kanał VHF: Pociągowy R'+R.ch,3500); return; }
   else if(s==='main'&&R.dial) return startCall(R.dial);
   else if(s==='regnum'){ if(R.tn.length>=3) R.scr='regconf'; else { tone(300,.2); toast('Wprowadź numer pociągu',1500); } }
@@ -906,14 +989,16 @@ function okKey(){ if(!R.on||R.boot)return; kbeep(); const s=R.scr;
   ui(); }
 function xKey(){ if(!R.on||R.boot)return; kbeep(); const s=R.scr;
   if(s==='call') return endCall(); if(s==='askGsm'){ R.scr='vhf'; } else if(s==='askVhf'){ R.scr='main'; }
-  else if(s==='vhf'){ R.chIn=''; R.link=null; } else if(s==='vmenu') R.scr='vhf';
+  else if(s==='vhf'){ R.chIn=''; R.link=null; } else if(s==='vmenu') R.scr='vhf'; else if(s==='vkan'||s==='vust'||s==='vserv') R.scr='vmenu'; else if(s==='vlogin'){ if(R.vin) R.vin=R.vin.slice(0,-1); else R.scr='vserv'; }
   else if(s==='main') R.dial=R.dial.slice(0,-1);
   else if(s==='chsel') R.scr='main';
   else if(s==='regnum'){ if(R.tn) R.tn=R.tn.slice(0,-1); else R.scr='regmenu'; }
   else if(s==='regconf') R.scr='regnum'; else if(s==='settings') R.scr='menu2'; else if(s==='menu2') R.scr='menu1'; else if(s!=='search') R.scr='main';
   ui(); }
-function digit(d){ if(!R.on||R.boot)return; tone(d==='*'?941:d==='#'?1477:697+((+d||10)%4)*80,.08,.04); const s=R.scr;
-  if(s==='vhf'){ if(d==='*') R.scr='askGsm'; else if(d==='4'||d==='6'){ R.ch=(R.ch-1+(d==='6'?1:-1)+8)%8+1; R.link=null; } }
+function digit(d){ if(!R.on||R.boot)return;
+  if(R.mode==='GSM'&&R.chMode&&(d==='4'||d==='6')){ R.ch=(R.ch-1+(d==='6'?1:-1)+8)%8+1; R.link=null; kbeep(); chModeArm(); ui(); return; } tone(d==='*'?941:d==='#'?1477:697+((+d||10)%4)*80,.08,.04); const s=R.scr;
+  if(s==='vlogin'){ if(/\d/.test(d)&&R.vin.length<8) R.vin+=d; }
+  else if(s==='vhf'){ if(d==='*') R.scr='askGsm'; else if(d==='4'||d==='6'){ R.ch=(R.ch-1+(d==='6'?1:-1)+8)%8+1; R.link=null; } }
   else if(s==='main'){ if(d==='*'&&!R.dial) R.scr='askVhf'; else if(d==='#'&&!R.dial) R.scr='regmenu'; else if(R.dial.length<11) R.dial+=d; }
   else if(s==='regnum'){ if(/\d/.test(d)&&R.tn.length<8) R.tn+=d; }
   else if(s==='chsel'){ if(d==='4'||d==='6') R.ch=(R.ch-1+(d==='6'?1:-1)+8)%8+1; }
@@ -939,14 +1024,18 @@ function lcdHTML(){ const t=clock(), sig='<span>▟ '+t+'</span>';
   const st=x=>`<div class="stl">${x||''}</div>`;
   if(R.boot) return '<div class="ctr big2">Koliber</div><div class="ctr">GSM-R / VHF — uruchamianie…</div>';
   const s=R.scr;
-  if(s==='askGsm'||s==='askVhf') return top('','','<span>'+t+'</span>')+`<div class="ctr" style="margin-top:5cqw;font-size:4.4cqw">Uaktywnij tryb ${s==='askGsm'?'GSM-R':'VHF'}</div><div class="stl">Przyciśnij OK lub zrezygnuj</div>`;
-  if(R.mode==='VHF'){ const status=R.alarm?R.alarm.txt:R.tx?'NADAWANIE':R.rx?'ODBIÓR':R.status||(conn()?'Rozmowa: '+NAME[R.link.who]()+(R.hs?'':' - podnieś słuchawkę'):'');
-    return top('',(R.mon?'◉ ':'')+'♪'+'▮'.repeat(R.vol),'<span>▞ '+t+'</span>')+`<div class="chan"><small>KANAŁ</small><b>${String(R.ch).padStart(3,'0')}</b><span>Pociągowy R${R.ch}</span></div>`+st(status).replace('stl"','stl" style="top:14.2cqw"')+sk(s==='vmenu'?['KANAŁ-','KANAŁ+','GŁOŚ-','GŁOŚ+','WRÓĆ']:['ZEW1','ZEW3','NASŁUCH','SZUM','MENU'],true); }
+  if(s==='askGsm'||s==='askVhf') return top('','','<span>'+t+'</span>')+`<div class="ctr" style="margin-top:2.6cqw;font-size:4.4cqw">Uaktywnij tryb ${s==='askGsm'?'GSM-R':'VHF'}</div><div class="stl" style="top:14.2cqw">Przyciśnij OK lub zrezygnuj</div>`+(s==='askVhf'?sk(['',R.vg?'GSMR':'VHF+GSMR','','',''],true):'');
+  if(R.mode==='VHF'){ const status=R.alarm?R.alarm.txt:R.tx?'NADAWANIE':R.rx?'ODBIÓR':R.status||(s==='vmenu'?'MENU':s==='vserv'?'MENU SERWIS':s==='vkan'?'MENU KANAŁY':s==='vust'?'MENU USTAWIENIA':conn()?'Rozmowa: '+NAME[R.link.who]()+(R.hs?'':' - podnieś słuchawkę'):'');
+    if(s==='vlogin') return top('','','<span>'+t+'</span>')+`<div style="position:absolute;left:1.4cqw;top:5cqw;line-height:1.25">Zaloguj się -<br>przyłóż identyfikator<br>lub wprowadź numer funkcyjny</div><div style="position:absolute;right:2cqw;bottom:2.4cqw;font-size:5cqw;letter-spacing:.6cqw">${(R.vin+'________').slice(0,8)}</div>`;
+    const tl=(s==='vserv'?'SERWIS':R.vlog?R.vlog:'');
+    return top(tl,(R.mon?'◉ ':'')+'♪'+'▮'.repeat(R.vol),'<span>▞ '+t+'</span>')+`<div class="chan"><small>KANAŁ</small><b>${String(R.ch).padStart(3,'0')}</b><span>Pociągowy R${R.ch}</span></div>`+st(status).replace('stl"','stl" style="top:14.2cqw"')+sk(({vmenu:['KANAŁY','USTAW','TELCRM','RADSTOP','SERWIS'],vserv:['GŁOSLOG','SYSLOG','INFO','LOGOUT','LOGIN'],vkan:['KANAŁ-','KANAŁ+','','','WRÓĆ'],vust:['GŁOŚ-','GŁOŚ+','','','WRÓĆ']})[s]||['ZEW1','ZEW3','NASŁUCH','SZUM','MENU'],true); }
   const id=`<div class="idl"><span class="inv">Maszynista 1</span><span>${R.status}</span></div>`, fn=R.reg?R.reg.fn:EVN;
   const mainK=[IB(')1('),IB(')2('),IB(')ϟ('),IB(SVG.grp),'>>>'];
-  if(s==='chsel') return top(fn,'GSM-R PL')+`<div class="chan" style="top:6.4cqw"><small>KANAŁ VHF</small><b>${String(R.ch).padStart(3,'0')}</b><span>Pociągowy R${R.ch}</span></div>`+st('◄ 4   zmiana kanału   6 ►   ✓ zatwierdź').replace('stl"','stl" style="top:16.5cqw;font-size:2.9cqw"');
+  const vgI=R.vg?`<div class="vgi${R.chMode?' blink':''}"><span class="inv">VHF</span><span class="inv">${String(R.ch).padStart(3,'0')}</span><span class="rxtx">${R.tx?'ϟ▲':R.rx?'ϟ▼':''}</span></div>`:'';
+  const xtra=`<div class="erec">eREC OFF</div><div class="mbox">M</div>`;
+  if(s==='chsel'){ R.scr='main'; }
   if(s==='search') return top('',`<span class="inv">Szukam sieci</span>`,'<span>▱ '+t+'</span>')+sk(mainK);
-  if(s==='main') return top(fn,'GSM-R PL')+(R.dial?`<div class="dial">${R.dial}</div><div class="idl"><span class="inv">Maszynista 1</span></div>`:id)+sk(mainK);
+  if(s==='main') return top(fn,'GSM-R PL')+xtra+vgI+(R.dial?`<div class="dial">${R.dial}</div><div class="idl"><span class="inv">Maszynista 1</span></div>`:id)+sk(mainK);
   if(s==='menu1') return top(fn,'GSM-R PL')+`<div class="lab">${R.status||'Menu'}</div>`+sk([IB('↑↓'),IB(SVG.kpd),IB(SVG.doc),IB('✆≡'),'>>>>']);
   if(s==='menu2') return top(fn,'GSM-R PL')+`<div class="lab">${R.status||'Ustawienia lokalne'}</div>`+sk([IB(SVG.clk),IB(SVG.cal),IB(SVG.globe),IB(SVG.ant),IB(SVG.sld)]);
   if(s==='settings') return '<div class="rows">'+SETROWS.map((r,i)=>`<div class="${i===R.set.row?'inv':''}"><span>${r[0]}</span><span>${r[1]()}</span></div>`).join('')+`</div><div class="rt">${SVG.sld}<br>GSMR</div>`+sk(['⇄','','','▲','▼']);
@@ -964,66 +1053,101 @@ function ui(){ const L=$('#lcd'); L.className=R.on?'':'off'; L.innerHTML=R.on?lc
   $('#kA').className=R.on&&R.alarm?'lit':R.arm?'arm':''; $('#ptt').classList.toggle('tx',R.tx);
   $('#kHs').textContent='Słuchawka: '+(R.hs?'podniesiona':'odłożona'); $('#kHs').classList.toggle('on',R.hs); $('#kPw').classList.toggle('on',R.on);
   const lk=linked(); $$('#phr button').forEach(b=>b.disabled=!lk);
-  $('#phrHint').textContent=!R.on?'Włącz radiotelefon przyciskiem ⏻ Zasilanie.':lk?'Rozmawiasz z: '+NAME[who()]()+'. Wybierz komunikat głosowy:':conn()?'Połączenie aktywne — podnieś słuchawkę, aby mówić.':R.mode==='VHF'?'150 MHz: kanał zmieniasz strzałkami na klawiszach 4 i 6, dyżurnego wywołujesz klawiszem ZEW3. Przejście do GSM-R: klawisz * i ✓.':'GSM-R: rejestracja numeru — #, klawiatura, numer pociągu, ✓, strzałka ←. Dyżurny ruchu: klawisz )1(. Kanał radia analogowego: przytrzymaj 4, potem strzałki 4 i 6. Powrót do 150 MHz: * i ✓.'; }
+  $('#phrHint').textContent=!R.on?'Włącz radiotelefon przyciskiem ⏻ Zasilanie.':lk?'Rozmawiasz z: '+NAME[who()]()+'. Wybierz komunikat głosowy:':conn()?'Połączenie aktywne — podnieś słuchawkę, aby mówić.':R.mode==='VHF'?'150 MHz: kanał zmieniasz strzałkami na klawiszach 4 i 6, dyżurnego wywołujesz klawiszem ZEW3. Przejście do GSM-R: klawisz * i ✓.':'GSM-R: rejestracja numeru — #, klawiatura, numer pociągu, ✓, strzałka ←. Dyżurny ruchu: klawisz )1(. Funkcja VHF w GSM-R: * i klawisz VHF+GSMR. Kanał VHF: przytrzymaj 4 lub 6, potem pojedyncze naciśnięcia (po 4 s tryb zmiany kanału sam się kończy). Powrót do 150 MHz: * i ✓.'; }
 const fmt=ms=>{ const s=Math.floor(ms/1000); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); };
 setInterval(()=>{ if(R.on) ui(); },1000);
 
 $('#kp').innerHTML=[['1',''],['2','abc'],['3','def'],['4','ghi'],['5','jkl'],['6','mno'],['7','pqrs'],['8','tuv'],['9','wxyz'],['*',''],['0',''],['#','']].map(k=>`<button data-d="${k[0]}">${k[0]==='4'?'◂ 4':k[0]==='6'?'6 ▸':k[0]}<small>${k[1]}</small></button>`).join('');
 let holdT=null, held=false; const kp=$('#kp');
+function chModeArm(){ clearTimeout(R.chT); R.chT=setTimeout(()=>{ R.chMode=false; ui(); },4000); }
 kp.addEventListener('pointerdown',e=>{ const b=e.target.closest('button'); if(!b)return; held=false; clearTimeout(holdT);
-  if(b.dataset.d==='4') holdT=setTimeout(()=>{ if(R.on&&!R.boot&&R.mode==='GSM'&&R.scr==='main'&&!R.dial){ held=true; R.scr='chsel'; R.chIn=''; tone(1200,.12,.05); ui(); } },700); });
+  const d=b.dataset.d; if((d==='4'||d==='6')&&!R.chMode) holdT=setTimeout(()=>{ if(!(R.on&&!R.boot&&R.mode==='GSM'&&R.scr==='main'&&!R.dial))return; held=true;
+    if(!R.vg){ tone(300,.2); toast('Funkcja VHF w GSM-R wyłączona (* i VHF+GSMR)',2500); return; }
+    R.chMode=true; tone(1200,.12,.05); chModeArm(); ui(); },800); });
 ['pointerup','pointerleave','pointercancel'].forEach(t=>kp.addEventListener(t,()=>clearTimeout(holdT)));
 kp.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; if(held){ held=false; return; } digit(b.dataset.d); });
 kp.addEventListener('contextmenu',e=>e.preventDefault());
 $$('[data-s]').forEach(b=>b.onclick=()=>softPress(+b.dataset.s));
 $('#kOK').onclick=okKey; $('#kX').onclick=xKey; $('#kA').onclick=alarmKey; $('#kHs').onclick=handset;
-$('#kPw').onclick=()=>{ R.on=!R.on; clearInterval(ringT); Object.assign(R,{link:null,alarm:null,arm:false,call:null,mode:'VHF',scr:'vhf',dial:'',chIn:'',status:'',reg:null,tx:false,rx:false});
+$('#kPw').onclick=()=>{ R.on=!R.on; clearInterval(ringT); Object.assign(R,{vg:false,chMode:false,link:null,alarm:null,arm:false,call:null,mode:'VHF',scr:'vhf',dial:'',chIn:'',status:'',reg:null,tx:false,rx:false});
   if(R.on){ R.boot=true; tone(700,.1); tone(1000,.1,.07,'sine',.15); setTimeout(()=>{ R.boot=false; ui(); },2200); } ui(); };
-const ptt=$('#ptt'); const pttOn=e=>{ e.preventDefault(); if(!R.on||R.boot||!R.hs)return; if(R.mode==='VHF'||(R.call&&R.call.grp&&R.call.state==='active')){ R.tx=true; ui(); } }, pttOff=()=>{ if(R.tx&&!(R.alarm&&R.mode==='VHF')){ R.tx=false; ui(); } };
+const ptt=$('#ptt'); const pttOn=e=>{ e.preventDefault(); if(!R.on||R.boot||!R.hs)return; if(R.mode==='VHF'||(R.vg&&!R.call)||(R.call&&R.call.grp&&R.call.state==='active')){ R.tx=true; ui(); } }, pttOff=()=>{ if(R.tx&&!(R.alarm&&R.mode==='VHF')){ R.tx=false; ui(); } };
 ptt.addEventListener('pointerdown',pttOn); ['pointerup','pointerleave','pointercancel'].forEach(t=>ptt.addEventListener(t,pttOff));
 
 /* ================= zdarzenia ETCS ================= */
 $('#evTsr').onclick=()=>{ if(!(S.mode==='FS'||S.mode==='OS')){ sysLog('Tymczasowe ograniczenie można wgrać podczas jazdy w trybie FS.'); return; } const s=Math.round(S.pos+1300); S.tsr={s,e:s+500,v:60}; msg('Nowe ograniczenie: 60 km/h od km '+(s/1000).toFixed(1).replace('.',','),true); sysLog('ETCS otrzymał tymczasowe ograniczenie prędkości do 60 km/h na odcinku 500 m. Wyhamuj przed jego początkiem — spóźnione hamowanie kończy się hamowaniem nagłym.'); };
 $('#evStop').onclick=()=>{ if(!moving()||S.mode==='SH'){ sysLog('Rozkaz awaryjnego zatrzymania działa podczas jazdy pociągowej.'); return; } trip(S.level===2?'Rozkaz awaryjnego zatrzymania z RBC — TRIP':'Balisa: rozkaz zatrzymania — TRIP'); sysLog('ETCS odebrał bezwarunkowy rozkaz awaryjnego zatrzymania. Po zatrzymaniu potwierdź na DMI, zgłoś się do dyżurnego i dopiero wtedy wybierz Start.'); };
-$('#evLoss').onclick=()=>{ if(S.level!==2||S.rbc!=='on'){ sysLog('Utrata łączności z RBC dotyczy poziomu 2 z nawiązaną sesją.'); return; } S.rbc='lost'; msg('Utrata łączności z RBC',true); sysLog('Zerwane połączenie radiowe z RBC. Jeśli nie wróci w ciągu 20 s, ETCS wdroży hamowanie służbowe do zatrzymania.');
-  after(20,()=>{ if(S.rbc!=='lost')return; if(moving()&&S.v>.1){ S.commBrake=true; msg('Brak łączności z RBC — hamowanie służbowe',true); } else { S.rbc='on'; msg('Połączenie z RBC przywrócone'); } }); };
+$('#evLoss').onclick=()=>{ if(S.level!==2||S.rbc!=='on'){ sysLog('Błąd komunikacji z RBC dotyczy poziomu 2 z nawiązaną sesją.'); return; } S.rbc='lost'; msg('Błąd komunikacji',true); sysLog('Zerwane połączenie radiowe z RBC. Jeśli nie wróci w ciągu 20 s, ETCS wdroży hamowanie służbowe do zatrzymania. Ir-1b § 18: po zatrzymaniu zgłoś dyżurnemu miejsce zatrzymania.');
+  after(20,()=>{ if(S.rbc!=='lost')return; if(moving()&&S.v>.1){ S.commBrake=true; msg('Błąd połączenia radiowego',true); } else { S.rbc='on'; msg('Połączenie z RBC przywrócone'); } }); };
 $('#evBal').onclick=()=>{ if(!moving()||S.v<.5){ sysLog('Błąd balisy można zasymulować podczas jazdy.'); return; } S.fault='Błąd odczytu balisy'; S.balBrake=true; msg('Błąd odczytu balisy — hamowanie służbowe',true); sysLog('ETCS nie odczytał oczekiwanej grupy balis. Hamowanie służbowe do zatrzymania, potem potwierdź komunikat na DMI.'); };
-$('#evLt').onclick=()=>{ if(S.mode!=='FS'){ sysLog('Granicę obszaru ETCS można zasymulować podczas jazdy w trybie FS.'); return; } const s=Math.round(Math.min(S.pos+900,(S.eoa==null?1e9:S.eoa)-150)); if(s<S.pos+250){ sysLog('Za blisko końca zezwolenia — spróbuj po jego przedłużeniu.'); return; } S.lt={s}; msg('Zapowiedź zmiany poziomu na SHP, km '+(s/1000).toFixed(1).replace('.',',')); sysLog('Zbliżasz się do granicy obszaru ETCS. Potwierdź zmianę poziomu, gdy pojawi się żądanie — brak potwierdzenia w 5 s po przejściu to hamowanie służbowe. Dalej jedziesz pod SHP według semaforów.'); };
+$('#evPos').onclick=e=>{ S.posKnown=!S.posKnown; e.target.textContent='Pozycja pociągu dla RBC: '+(S.posKnown?'znana':'nieznana'); e.target.classList.toggle('on',S.posKnown); };
+setInterval(()=>{ const b=$('#evPos'); if(b){ b.textContent='Pozycja pociągu dla RBC: '+(S.posKnown?'znana':'nieznana'); b.classList.toggle('on',!!S.posKnown); } },1000);
+$('#evScen').onclick=e=>{ S.scen=!S.scen; e.target.textContent='Sytuacje na trasie: '+(S.scen?'wł.':'wył.'); e.target.classList.toggle('on',S.scen); };
+$('#evDrop').onclick=()=>{ const g=SIGS.find(x=>x.s>S.pos+300&&x.a!=='stop'); if(!g){ sysLog('Brak semafora przed pociągiem.'); return; } setAsp(g,'stop'); g.autoClear=25; g.auto2=true;
+  sysLog(S.level===2?'Semafor '+g.n+' zmienił się na STÓJ — RBC od razu skraca zezwolenie. Jeśli nie da się zatrzymać przed semaforem, ETCS sam zahamuje nagle.':'Semafor '+g.n+' zmienił się na STÓJ. W poziomie 1 DMI dowie się o tym dopiero na balisie — obserwuj semafor i hamuj sam.'); };
+$('#evLt').onclick=()=>annLevel('SHP');
+
+
+$('#bDir').onclick=()=>{ if(S.v>.05||S.lever>0){ sysLog('Kierunek jazdy zmieniaj na postoju, z nastawnikiem na 0 lub w hamowaniu.'); return; } click(); S.dir=(S.dir||1)>0?-1:1; S.rev=0; $('#bDir').textContent='Kierunek: '+(S.dir>0?'przód':'tył'); $('#bDir').classList.toggle('on',S.dir<0); };
+/* ===== panel symulacji ===== */
+$('#simTog').onclick=()=>$('#simBar').classList.toggle('open');
+const SIM={
+  lv1:()=>annLevel(1), lv2:()=>annLevel(2), lv0:()=>annLevel(0),
+  sz(){ if(!(S.mode==='FS'||S.mode==='SR')||!(S.level===1||S.level===2)){ sysLog('Sygnał zastępczy: jedź w poziomie 1 lub 2 (FS/SR).'); return; } const g=SIGS.find(x=>x.s>S.pos+900&&x.s<availNow()+1); if(!g){ sysLog('Brak semafora zezwalającego przed pociągiem — przedłuż najpierw zezwolenie.'); return; }
+    setAsp(g,'sz'); sysLog('Semafor '+g.n+' (km '+kmS(g.s)+') wskazuje sygnał zastępczy Sz. ETCS zaproponuje tryb OS — zwolnij do 40 km/h i potwierdź OS przed semaforem (Ir-1b: jazda z ostrożnością). Przejazd w FS bez potwierdzenia = hamowanie służbowe.'); },
+  ces(){ if(S.level!==2||S.rbc!=='on'||S.mode!=='FS'){ sysLog('Warunkowe zatrzymanie awaryjne wysyła RBC — jedź w poziomie 2 w trybie FS.'); return; } const bd=S.v*S.v/(2*0.6)+150; const g=SIGS.find(x=>x.s>S.pos+bd&&x.s<=availNow());
+    if(!g){ msg('Warunkowe zatrzymanie awaryjne — odrzucone (za blisko)',false); sysLog('Pociąg nie zdąży zatrzymać się przed najbliższym semaforem — RBC nie skraca zezwolenia (zgodnie z SRS jest to wtedy ignorowane).'); return; }
+    setAsp(g,'stop'); g.autoClear=30; g.auto2=true; msg('Warunkowe zatrzymanie awaryjne',true); sysLog('RBC skrócił zezwolenie do semafora '+g.n+' (km '+kmS(g.s)+'). Zatrzymaj pociąg przed końcem zezwolenia i zgłoś się do dyżurnego.'); },
+  cov(){ $('#bCov').click(); },
+  sf(){ if(!S.cab||S.boot!==2){ sysLog('Najpierw aktywuj kabinę.'); return; } Object.assign(S,{mode:'SF',ebi:true,sbi:false,ack:null,eoa:null,started:false,override:false,lv:null}); closeWin(); msg('Awaria systemu ETCS',true); tone(500,.8,.1,'square');
+    sysLog('Tryb SF (awaria systemu): ETCS hamuje nagle do zatrzymania i nie pozwala jechać. Ir-1b § 17: zgłoś usterkę dyżurnemu; po jego decyzji izoluj ETCS (przycisk „Izolacja EVC” pod DMI) albo spróbuj restartu (izolacja i powrót).'); },
+  neu(){ if(!moving()||S.v<.5){ sysLog('Sekcję neutralną można zasymulować podczas jazdy.'); return; } const s0=Math.round(S.pos+1500); TRACK.tc.push({s:s0,e:s0+120,t:'neu'}); TRACK.tc.sort((x,y)=>x.s-y.s); msg('Zapowiedź: sekcja neutralna km '+kmS(s0)); sysLog('Przed pociągiem sekcja neutralna (km '+kmS(s0)+'). Symbol pojawia się w planowaniu i w polu B3 — wyłącz wyłącznik szybki i opuść pantograf przed sekcją, podnieś za nią.'); },
+  lx(){ if(!(S.mode==='FS'||S.mode==='OS')||!(S.level===1||S.level===2)){ sysLog('Przejazd niestrzeżony: jedź w FS w poziomie 1 lub 2.'); return; } const s0=Math.round(S.pos+Math.max(1200,S.v*S.v/1.2+600)); S.lx={s:s0,v:20};
+    msg('Przejazd niestrzeżony km '+kmS(s0)+' — ograniczenie 20 km/h',true); sysLog('Urządzenia przejazdowe nie działają (LX not protected). ETCS wprowadza ograniczenie prędkości przed przejazdem i pokazuje symbol LX01 w polu B3. Zbliżając się, podawaj sygnał Rp1 i obserwuj przejazd.'); },
+  taf(){ if(S.level!==2||S.rbc!=='on'||!(S.mode==='SR'||S.mode==='OS')){ sysLog('Żądanie TAF wysyła RBC w poziomie 2 — gdy jedziesz w SR lub OS (np. po starcie misji).'); return; } S.taf=true; msg('Żądanie potwierdzenia: tor przed pociągiem wolny');
+    sysLog('RBC pyta, czy tor przed pociągiem do następnego semafora jest wolny (TAF). Jeśli widzisz wolny tor — dotknij symbolu DR02 w polu planowania. RBC da wtedy zezwolenie w trybie FS.'); },
+  ho(){ if(S.level!==2||S.rbc!=='on'){ sysLog('Przekazanie RBC dotyczy poziomu 2 z sesją.'); return; } const i=RBCS.findIndex(y=>y[0]===S.rbcName), nx=RBCS[(i+RBCS.length-1)%RBCS.length]; msg('Przekazanie do RBC '+nx[0]);
+    after(3,()=>{ if(S.rbc!=='on') return; $('#evLoss').click(); sysLog('Przekazanie do sąsiedniego RBC nie powiodło się — sesja zerwana. Ir-1b § 18: zatrzymaj się, zgłoś dyżurnemu, dalej według jego decyzji (np. SR do najbliższej stacji i Start Misji).'); }); },
+  slip(){ S.slip=!S.slip; msg('Przyczepność: '+(S.slip?'śliska szyna':'normalna')); sysLog(S.slip?'Warunki złej przyczepności (symbol ST02 w polu A4). ETCS liczy dłuższą drogę hamowania — wcześniej zaczyna hamowanie do celu. Na pojeździe: Spec. → Przyczepność.':'Przyczepność normalna.'); },
+  txt(){ if(!S.cab||S.boot!==2){ return; } if(S.level===2&&S.rbc==='on') msg('RBC: Roboty na torze sąsiednim km '+kmS(S.pos+3000)+' — podawaj sygnał Rp1',true); else msg('Balisa: Uwaga — prace na torze sąsiednim',true); }
+};
+$$('[data-sim]').forEach(b=>b.onclick=()=>{ click(); SIM[b.dataset.sim](); });
 $$('[data-nv]').forEach(b=>b.onclick=()=>{ const k=b.dataset.nv; NV[k]=!NV[k]; nvUi(); });
 function nvUi(){ $('[data-nv=ca]').textContent='Czuwak aktywny: '+(NV.ca?'włączony':'wyłączony'); $('[data-nv=sbTsm]').textContent='Hamowanie do celu: '+(NV.sbTsm?'najpierw służbowe':'od razu nagłe'); $('[data-nv=relStand]').textContent='Zwolnienie hamowania nagłego: '+(NV.relStand?'po zatrzymaniu':'po spadku prędkości'); } nvUi();
 
 /* ================= instruktor ================= */
-const STEPS=[
+const STEPS=SCN==='cisowa'?[
+  ['Włącz radiotelefon (⏻ Zasilanie), ustaw kanał 5 i zaloguj numer pociągu (VHF: MENU → SERWIS → LOGIN albo GSM-R: rejestracja).',()=>R.on&&R.ch===TRACK.chan],
+  ['Aktywuj kabinę i wpisz numer maszynisty.',()=>!!S.driverId],
+  ['Wybierz poziom SHP — Gdynia Cisowa leży poza obszarem ETCS.',()=>S.level==='SHP'||S.level===2],
+  ['Dane pociągu i numer pociągu.',()=>(S.dataValid&&!!S.trn)],
+  ['Semafor wyjazdowy Gdynia Cisowa (po ok. 15 s postoju, po zgłoszeniu gotowości albo z panelu semaforów).',()=>SIGS[0].a!=='stop'],
+  ['Menu → Start i potwierdź tryb SN (STM Krajowy). Jedź według sygnałów, potwierdzaj SHP.',()=>S.started],
+  ['Km 1,5: balisa zapowiada poziom 2 (symbol pod tarczą), ETCS sam łączy się z RBC Gdynia. Km 2,5: potwierdź zmianę poziomu w ciągu 5 s. Km 3,0: wejście w poziom 2 i Pełny Nadzór.',()=>S.level===2&&S.mode==='FS'],
+  ['Postój Gdynia Główna.',()=>S.stopped.has('Gdynia Główna')],
+  ['Postój Gdańsk Główny (po drodze SBL na „Stój” i wjazd na sygnał zastępczy).',()=>S.stopped.has('Gdańsk Główny')],
+  ['Postój Tczew i Malbork.',()=>S.stopped.has('Malbork')],
+  ['Iława Główna — zatrzymaj się przy peronie przed końcem toru.',()=>S.arrived],
+  ['Zgłoś przyjazd dyżurnemu i zamknij kabinę.',()=>G.arrRep&&G.closed]]:[
   ['Włącz radiotelefon (⏻ Zasilanie). Startuje w trybie 150 MHz; do GSM-R przejdziesz klawiszem * i ✓.',()=>R.on&&!R.boot],
-  ['150 MHz: ustaw kanał 5 strzałkami na klawiszach 4 i 6. GSM-R: zarejestruj numer pociągu — #, klawiatura, numer, ✓, strzałka ←; przytrzymaj klawisz 4 i strzałkami 4/6 ustaw kanał 5 radia analogowego, zatwierdź ✓.',()=>R.on&&R.ch===TRACK.chan&&(R.mode==='VHF'||!!R.reg)],
-  ['Aktywuj kabinę i wpisz numer maszynisty. Każde okno zatwierdzasz dotknięciem jasnego pola z wartością.',()=>!!S.driverId],
-  ['Wybierz poziom: 1 (balisy), 2 (radio, nawiąż sesję z RBC), 0 albo SHP. Scenariusz z pełnym nadzorem wymaga poziomu 1 lub 2.',()=>(S.level!=null&&(S.level!==2||S.rbc==='on'))||G.fs],
-  ['Dane pociągu: wybierz typ (jazda pojedyncza lub wielokrotna 31WEbb), w razie potrzeby popraw długość, masę i hamowanie, naciśnij „Wprow. danych”, wybierz „Tak” i dotknij pola. Potem wpisz numer pociągu i dotknij pola.',()=>(S.dataValid&&!!S.trn)||G.fs],
-  ['Podnieś słuchawkę, wywołaj dyżurnego ruchu (ZEW3 albo klawisz )1(), wykonaj próbę łączności i zgłoś gotowość do odjazdu.',()=>G.test&&G.ready],
-  ['DMI: Główne → Start. W poziomie 1 potwierdź tryb SR i jedź do 40 km/h do pierwszej balisy.',()=>S.started||G.fs],
-  ['Jedź w pełnym nadzorze (FS). Pilnuj haczyka prędkości dozwolonej i hamuj do celów z wyprzedzeniem.',()=>(G.fs||S.mode==='SN'||S.mode==='UN')&&S.pos>3000],
-  ['Zatrzymaj się przed końcem zezwolenia przy semaforze (km 6,5) i zgłoś zatrzymanie dyżurnemu.',()=>G.stopEoa&&(G.reported||S.stage===3)],
-  ['Po przedłużeniu zezwolenia jedź dalej. Przed km 9,0 potwierdź tryb OS i wjedź na widoczność (20 km/h).',()=>G.os||(['SN','UN'].includes(S.mode)&&S.pos>9000)],
-  ['Zatrzymaj pociąg przy peronie w Lipowej (km 9,65–9,85), przed końcem zezwolenia.',()=>S.arrived],
-  ['Zgłoś przyjazd dyżurnemu, a następnie zamknij kabinę.',()=>G.arrRep&&G.closed]];
+  ['150 MHz: ustaw kanał 5 strzałkami na klawiszach 4 i 6. GSM-R: zarejestruj numer pociągu (#, klawiatura, numer, ✓, strzałka ←).',()=>R.on&&R.ch===TRACK.chan&&(R.mode==='VHF'||!!R.reg)],
+  ['Aktywuj kabinę i wpisz numer maszynisty (zatwierdzasz dotknięciem pola).',()=>!!S.driverId],
+  ['Wybierz poziom. Poziom 2: wpisz dane pociągu i numer, potem zaloguj się do RBC (Gdynia na pierwszym odcinku).',()=>(S.level!=null&&(S.level!==2||S.rbc==='on'||S.rbc==='wait'))||G.fs],
+  ['Dane pociągu i numer pociągu.',()=>(S.dataValid&&!!S.trn)||G.fs],
+  ['Semafor wyjazdowy Gdynia Gł. dostaniesz po ok. 15 s postoju z wpisanymi danymi, po zgłoszeniu gotowości przez radio albo zmieniając go sam w panelu semaforów.',()=>SIGS[0].a!=='stop'||G.fs],
+  ['Menu → Start. Poziom 2 z sesją RBC i znaną pozycją: RBC od razu daje Pełny Nadzór (bez potwierdzania). Poziom 1 albo nieznana pozycja: potwierdź SR (przytrzymaj ok. 1 s); poziom 1 — FS po balisie semafora wyjazdowego, poziom 2 — OS przy pierwszej balisie, potem FS.',()=>S.started||G.fs],
+  ['Postój planowy Gdańsk Główny (po drodze: SBL na „Stój” i wjazd na sygnał zastępczy).',()=>S.stopped.has('Gdańsk Główny')],
+  ['Postój planowy Tczew (ograniczenie 70 km/h na km 36–37,5).',()=>S.stopped.has('Tczew')],
+  ['Postój planowy Malbork (semafor nagle na „Stój”, potem wjazd na „Stój”).',()=>S.stopped.has('Malbork')],
+  ['Iława Główna — zatrzymaj się przy peronie przed końcem toru (km 146,0). Między km 96 a 99 nie ma zasięgu GSM-R.',()=>S.arrived],
+  ['Zgłoś przyjazd dyżurnemu i zamknij kabinę.',()=>G.arrRep&&G.closed]];
+if(SCN==='cisowa'){ $('#scnTitle').textContent='Instruktor — trasa: Gdynia Cisowa → Iława Główna (151 km), wjazd w ETCS poziom 2'; $('#scnFirst').textContent='Gdynia Cisowa (odjazd) – Gdynia Gł.'; }
 $('#steps').innerHTML=STEPS.map(s=>`<li>${s[0]}</li>`).join('');
 setInterval(()=>{ let cur=false; $$('#steps li').forEach((li,i)=>{ const d=STEPS[i][1](); li.className=d?'done':(!cur?(cur=true,'cur'):''); }); },500);
 
 /* ================= pasek górny, start ================= */
 $('#bSnd').onclick=e=>{ mute=!mute; e.target.textContent='Dźwięk: '+(mute?'wył.':'wł.'); e.target.classList.toggle('on',!mute); };
-$('#bSpk').onclick=()=>ttsEnable(!TTS.on);
-$('#ttsBtn').onclick=()=>ttsEnable(!TTS.on);
-$('#ttsStop').onclick=()=>{ click(); ttsStop(); };
-$('#ttsTest').onclick=()=>{ if(!TTS.on) ttsEnable(true); ttsStop();
-  ttsSay('Pociąg 54102, kilometr 6,5, prędkość 60 km/h, kanał R5.',{prof:'dr'}); };
-$('#ttsEngine').onchange=e=>{ TTS.engine=e.target.value; ttsSave(); ttsStop(); ttsUI();
-  if(TTS.engine==='neural'){ if(!TTS.on) ttsEnable(true); else neuReady().catch(()=>{}); }
-  else if(TTS.on) ttsSay('Silnik systemowy.',{prof:'system'}); };
-$('#ttsSys').onchange=e=>{ TTS.sys=e.target.checked; ttsSave(); };
-$('#ttsVoice').onchange=e=>{ TTS.sel=e.target.value; ttsSave();
-  if(!TTS.on) ttsEnable(true);
-  ttsStop(); ttsSay('Dyżurny ruchu Lipowa, tu maszynista pociągu 54102. Proszę o próbę łączności.',{prof:'dr'}); };
-ttsUI();
+$('#bSpk').onclick=e=>{ speech=!speech; e.target.textContent='Mowa: '+(speech?'wł.':'wył.'); e.target.classList.toggle('on',speech); if(speech) speak('Synteza mowy włączona'); else if('speechSynthesis' in window) speechSynthesis.cancel(); };
 $('#bRst').onclick=()=>location.reload();
 $$('nav button').forEach(b=>b.onclick=()=>{ document.body.dataset.tab=b.dataset.t; $$('nav button').forEach(x=>x.classList.toggle('act',x===b)); if(b.dataset.t==='radio') b.classList.remove('alert'); fit(); });
 function fit(){ const w=$('#dmiWrap').clientWidth; if(w) $('#dmi').style.transform=`scale(${w/640})`; }
